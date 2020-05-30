@@ -1,0 +1,12 @@
+language: java
+jdk:
+  - openjdk11
+
+addons:
+  sonarcloud:
+    organization: 3aacfe8b5b095d54ca2128a4bc103641
+    token: 3b2489c69c6fd0881fd3187d2276c65b37e5225a
+script:
+
+    # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+    - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=GlaAndry_bookkeeper
