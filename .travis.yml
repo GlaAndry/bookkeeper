@@ -9,4 +9,4 @@ addons:
 script:
 
     # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - mvn test -Dtest=BufferedChannelTest sonar:sonar -Pcode-coverage -Dsonar.projectKey=salvatorefoderaro_bookkeeper -DfailIfNoTests=false -Dmaven.test.failure.ignore=true
+  - mvn test -Dtest=BufferedChannelTest sonar:sonar -Pcode-coverage -Dsonar.projectKey=GlaAndry_bookkeeper -DfailIfNoTests=false -Dmaven.test.failure.ignore=true
