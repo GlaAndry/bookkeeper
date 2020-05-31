@@ -37,7 +37,7 @@
           <additionalparam>-Xdoclint:none</additionalparam>
           <subpackages>org.apache.bookkeeper.stats</subpackages>
           <groups>
-            <group>
+            <group>::
               <title>Bookkeeper Stats API</title>
               <packages>org.apache.bookkeeper.stats</packages>
             </group>
