@@ -9,4 +9,4 @@ addons:
 script:
 
     # -Dtest=FileInfoTest --> Indica la classe di test da eseguire
-  - mvn test -Dtest=FileInfoTest sonar:sonar -Pcode-coverage -Dsonar.projectKey=GlaAndry_bookkeeper -DfailIfNoTests=false -Dmaven.test.failure.ignore=true
+  - mvn test -Dtest=moduleTestBookkeeper sonar:sonar -Pcode-coverage -Dsonar.projectKey=GlaAndry_bookkeeper -DfailIfNoTests=false -Dmaven.test.failure.ignore=true
