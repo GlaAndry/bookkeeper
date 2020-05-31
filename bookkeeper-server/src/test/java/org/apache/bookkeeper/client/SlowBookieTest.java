@@ -21,17 +21,6 @@
 
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.proto.BookieClientImpl;
@@ -40,6 +29,15 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.*;
 
 /**
  * Test a slow bookie.
@@ -219,8 +217,8 @@ public class SlowBookieTest extends BookKeeperClusterTestCase {
     }
 
     private LedgerHandle doBackpressureTest(byte[] entry, ClientConfiguration conf,
-                                    boolean expectWriteError, boolean expectFailedTest,
-                                    long sleepInMillis) throws Exception {
+                                            boolean expectWriteError, boolean expectFailedTest,
+                                            long sleepInMillis) throws Exception {
         BookKeeper bkc = new BookKeeper(conf);
 
         byte[] pwd = new byte[] {};

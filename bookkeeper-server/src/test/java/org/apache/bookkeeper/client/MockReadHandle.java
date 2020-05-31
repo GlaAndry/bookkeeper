@@ -18,17 +18,15 @@
  */
 package org.apache.bookkeeper.client;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bookkeeper.client.api.*;
+import org.apache.bookkeeper.client.api.LedgerEntry;
+import org.apache.bookkeeper.client.impl.LedgerEntriesImpl;
+import org.apache.bookkeeper.client.impl.LedgerEntryImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.bookkeeper.client.api.LastConfirmedAndEntry;
-import org.apache.bookkeeper.client.api.LedgerEntries;
-import org.apache.bookkeeper.client.api.LedgerEntry;
-import org.apache.bookkeeper.client.api.LedgerMetadata;
-import org.apache.bookkeeper.client.api.ReadHandle;
-import org.apache.bookkeeper.client.impl.LedgerEntriesImpl;
-import org.apache.bookkeeper.client.impl.LedgerEntryImpl;
 
 
 /**

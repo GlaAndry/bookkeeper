@@ -20,31 +20,9 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.BOOKIE_SCOPE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.STORAGE_SCRUB_PAGE_RETRIES;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.PrimitiveIterator.OfLong;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-
 import org.apache.bookkeeper.bookie.CheckpointSource.Checkpoint;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.conf.TestBKConfiguration;
@@ -63,6 +41,25 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.PrimitiveIterator.OfLong;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+
+import static org.apache.bookkeeper.bookie.BookKeeperServerStats.BOOKIE_SCOPE;
+import static org.apache.bookkeeper.bookie.BookKeeperServerStats.STORAGE_SCRUB_PAGE_RETRIES;
+import static org.junit.Assert.*;
 
 /**
  * Test for InterleavedLedgerStorage.
@@ -116,7 +113,7 @@ public class TestInterleavedLedgerStorage {
         public TestableEntryLogger(
                 ServerConfiguration conf,
                 LedgerDirsManager ledgerDirsManager,
-                EntryLogListener listener,
+                EntryLogger.EntryLogListener listener,
                 StatsLogger statsLogger) throws IOException {
             super(conf, ledgerDirsManager, listener, statsLogger, UnpooledByteBufAllocator.DEFAULT);
         }
@@ -126,7 +123,7 @@ public class TestInterleavedLedgerStorage {
         }
 
         @Override
-        void checkEntry(long ledgerId, long entryId, long location) throws EntryLookupException, IOException {
+        void checkEntry(long ledgerId, long entryId, long location) throws EntryLogger.EntryLookupException, IOException {
             CheckEntryListener runBefore = testPoint;
             if (runBefore != null) {
                 runBefore.accept(ledgerId, entryId, logIdForOffset(location), posForOffset(location));

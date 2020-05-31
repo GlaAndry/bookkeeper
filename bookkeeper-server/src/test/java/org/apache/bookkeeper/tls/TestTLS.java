@@ -17,42 +17,13 @@
  */
 package org.apache.bookkeeper.tls;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.auth.AuthCallbacks;
 import org.apache.bookkeeper.auth.AuthToken;
 import org.apache.bookkeeper.auth.BookieAuthProvider;
 import org.apache.bookkeeper.auth.ClientAuthProvider;
-import org.apache.bookkeeper.client.BKException;
+import org.apache.bookkeeper.client.*;
 import org.apache.bookkeeper.client.BKException.BKUnauthorizedAccessException;
-import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
-import org.apache.bookkeeper.client.BookKeeperAdmin;
-import org.apache.bookkeeper.client.BookKeeperClientStats;
-import org.apache.bookkeeper.client.BookKeeperTestClient;
-import org.apache.bookkeeper.client.LedgerEntry;
-import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.conf.ServerConfiguration;
@@ -63,6 +34,8 @@ import org.apache.bookkeeper.proto.ClientConnectionPeer;
 import org.apache.bookkeeper.proto.TestPerChannelBookieClient;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.apache.bookkeeper.test.TestStatsProvider;
+import org.apache.bookkeeper.tls.SecurityException;
+import org.apache.bookkeeper.tls.TLSContextFactory;
 import org.apache.bookkeeper.tls.TLSContextFactory.KeyStoreType;
 import org.apache.bookkeeper.util.IOUtils;
 import org.apache.commons.io.FileUtils;
@@ -75,6 +48,19 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Tests with TLS enabled.
@@ -653,7 +639,7 @@ public class TestTLS extends BookKeeperClusterTestCase {
         try {
             testClient(clientConf, numBookies);
             fail("Shouldn't be able to connect");
-        } catch (BKException.BKUnauthorizedAccessException authFailed) {
+        } catch (BKUnauthorizedAccessException authFailed) {
         }
 
         assertTrue(secureBookieSideChannel);
@@ -681,7 +667,7 @@ public class TestTLS extends BookKeeperClusterTestCase {
         try {
             testClient(clientConf, numBookies);
             fail("Shouldn't be able to connect");
-        } catch (BKException.BKUnauthorizedAccessException authFailed) {
+        } catch (BKUnauthorizedAccessException authFailed) {
         }
 
         assertTrue(secureBookieSideChannel);
@@ -706,7 +692,7 @@ public class TestTLS extends BookKeeperClusterTestCase {
         try {
             testClient(clientConf, numBookies);
             fail("Shouldn't be able to connect");
-        } catch (BKException.BKUnauthorizedAccessException authFailed) {
+        } catch (BKUnauthorizedAccessException authFailed) {
         }
 
         assertFalse(secureBookieSideChannel);
@@ -726,7 +712,7 @@ public class TestTLS extends BookKeeperClusterTestCase {
 
         @Override
         public ClientAuthProvider newProvider(ClientConnectionPeer addr,
-                final AuthCallbacks.GenericCallback<Void> completeCb) {
+                                              final AuthCallbacks.GenericCallback<Void> completeCb) {
             return new ClientAuthProvider() {
 
                 AuthCallbacks.GenericCallback<AuthToken> completeCallback;
@@ -770,7 +756,7 @@ public class TestTLS extends BookKeeperClusterTestCase {
 
         @Override
         public BookieAuthProvider newProvider(BookieConnectionPeer addr,
-                final AuthCallbacks.GenericCallback<Void> completeCb) {
+                                              final AuthCallbacks.GenericCallback<Void> completeCb) {
             return new BookieAuthProvider() {
 
                 AuthCallbacks.GenericCallback<Void> completeCallback = completeCb;

@@ -20,13 +20,6 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.apache.bookkeeper.util.BookKeeperConstants.COOKIE_NODE;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.List;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.discover.RegistrationManager;
 import org.apache.bookkeeper.meta.MetadataBookieDriver;
@@ -41,6 +34,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.List;
+
+import static org.apache.bookkeeper.util.BookKeeperConstants.COOKIE_NODE;
 
 /**
  * This tests 'updatecookie' shell command.

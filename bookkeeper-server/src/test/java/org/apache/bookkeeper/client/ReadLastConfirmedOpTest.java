@@ -22,20 +22,19 @@ package org.apache.bookkeeper.client;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.apache.bookkeeper.common.util.OrderedExecutor;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.proto.DataFormats.LedgerMetadataFormat.DigestType;
 import org.apache.bookkeeper.proto.MockBookieClient;
 import org.apache.bookkeeper.proto.checksum.DigestManager;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Tests about ReadLastConfirmedOp.

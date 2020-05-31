@@ -20,19 +20,12 @@
  */
 package org.apache.bookkeeper.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.PrimitiveIterator;
-import java.util.Set;
-
+import org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger;
 import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * Testsuite for AvailabilityOfEntriesOfLedger.

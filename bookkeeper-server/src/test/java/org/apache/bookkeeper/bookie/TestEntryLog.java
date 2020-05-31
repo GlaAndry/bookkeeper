@@ -20,42 +20,10 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import com.google.common.collect.Sets;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.locks.Lock;
-
-import org.apache.bookkeeper.bookie.EntryLogger.BufferedLogChannel;
 import org.apache.bookkeeper.bookie.LedgerDirsManager.NoWritableLedgerDirException;
 import org.apache.bookkeeper.common.testing.annotations.FlakyTest;
 import org.apache.bookkeeper.conf.ServerConfiguration;
@@ -64,14 +32,25 @@ import org.apache.bookkeeper.util.DiskChecker;
 import org.apache.bookkeeper.util.IOUtils;
 import org.apache.bookkeeper.util.collections.ConcurrentLongLongHashMap;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.locks.Lock;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for EntryLog.
@@ -474,8 +453,8 @@ public class TestEntryLog {
         AtomicBoolean exceptionHappened = new AtomicBoolean(false);
 
         CyclicBarrier barrier = new CyclicBarrier(2);
-        List<BufferedLogChannel> rotatedLogChannels;
-        BufferedLogChannel currentActiveChannel;
+        List<EntryLogger.BufferedLogChannel> rotatedLogChannels;
+        EntryLogger.BufferedLogChannel currentActiveChannel;
 
         exceptionHappened.set(false);
 
@@ -485,7 +464,7 @@ public class TestEntryLog {
          */
         addEntriesAndRotateLogs(entryLogger, 30);
 
-        rotatedLogChannels = new LinkedList<BufferedLogChannel>(entryLogManager.getRotatedLogChannels());
+        rotatedLogChannels = new LinkedList<EntryLogger.BufferedLogChannel>(entryLogManager.getRotatedLogChannels());
         currentActiveChannel = entryLogManager.getCurrentLogForLedger(EntryLogger.UNASSIGNED_LEDGERID);
         long currentActiveChannelUnpersistedBytes = currentActiveChannel.getUnpersistedBytes();
 
@@ -544,7 +523,7 @@ public class TestEntryLog {
                             + ", but it is actually " + currentActiveChannel.getUnpersistedBytes(),
                     currentActiveChannel.getUnpersistedBytes() < currentActiveChannelUnpersistedBytes);
         }
-        for (BufferedLogChannel rotatedLogChannel : rotatedLogChannels) {
+        for (EntryLogger.BufferedLogChannel rotatedLogChannel : rotatedLogChannels) {
             Assert.assertEquals("previous rotated entrylog should be flushandforcewritten", 0,
                     rotatedLogChannel.getUnpersistedBytes());
         }
@@ -951,7 +930,7 @@ public class TestEntryLog {
         Assert.assertEquals("Number of Rotated Logs ", 2 * numOfLedgers,
                 entryLogManager.getRotatedLogChannels().size());
 
-        for (BufferedLogChannel logChannel : entryLogManager.getRotatedLogChannels()) {
+        for (EntryLogger.BufferedLogChannel logChannel : entryLogManager.getRotatedLogChannels()) {
             entryLogManager.getRotatedLogChannels().remove(logChannel);
         }
         Assert.assertEquals("Number of Rotated Logs ", 0, entryLogManager.getRotatedLogChannels().size());
@@ -969,11 +948,11 @@ public class TestEntryLog {
     }
 
     private EntryLogger.BufferedLogChannel createDummyBufferedLogChannel(EntryLogger entryLogger, long logid,
-            ServerConfiguration servConf) throws IOException {
+                                                                         ServerConfiguration servConf) throws IOException {
         File tmpFile = File.createTempFile("entrylog", logid + "");
         tmpFile.deleteOnExit();
         FileChannel fc = new RandomAccessFile(tmpFile, "rw").getChannel();
-        EntryLogger.BufferedLogChannel logChannel = new BufferedLogChannel(UnpooledByteBufAllocator.DEFAULT, fc, 10, 10,
+        EntryLogger.BufferedLogChannel logChannel = new EntryLogger.BufferedLogChannel(UnpooledByteBufAllocator.DEFAULT, fc, 10, 10,
                 logid, tmpFile, servConf.getFlushIntervalInBytes());
         return logChannel;
     }
@@ -1055,10 +1034,10 @@ public class TestEntryLog {
 
         long ledgerId = 0L;
 
-        BufferedLogChannel logChannel = createDummyBufferedLogChannel(entryLogger, 0, conf);
+        EntryLogger.BufferedLogChannel logChannel = createDummyBufferedLogChannel(entryLogger, 0, conf);
         entryLogManager.setCurrentLogForLedgerAndAddToRotate(ledgerId, logChannel);
 
-        BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
+        EntryLogger.BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
         assertEquals("LogChannel for ledger " + ledgerId + " should match", logChannel, currentLogForLedger);
 
         Thread.sleep(evictionPeriod * 1000 + 100);
@@ -1184,7 +1163,7 @@ public class TestEntryLog {
             entryLogger.addEntry(ledgerId, generateEntry(ledgerId, i, entrySize));
         }
 
-        BufferedLogChannel logChannelForledger = entryLogManager.getCurrentLogForLedger(ledgerId);
+        EntryLogger.BufferedLogChannel logChannelForledger = entryLogManager.getCurrentLogForLedger(ledgerId);
         long logIdOfLedger = logChannelForledger.getLogId();
         /*
          * do checkpoint to make sure entrylog files are persisted
@@ -1240,7 +1219,7 @@ public class TestEntryLog {
 
         long ledgerId = 0L;
 
-        BufferedLogChannel newLogChannel = createDummyBufferedLogChannel(entryLogger, 1, conf);
+        EntryLogger.BufferedLogChannel newLogChannel = createDummyBufferedLogChannel(entryLogger, 1, conf);
         entryLogManager.setCurrentLogForLedgerAndAddToRotate(ledgerId, newLogChannel);
 
         Thread t = new Thread() {
@@ -1261,7 +1240,7 @@ public class TestEntryLog {
          * in this scenario, that ledger is accessed by other thread during
          * eviction period time, so it should not be evicted.
          */
-        BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
+        EntryLogger.BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
         assertEquals("LogChannel for ledger " + ledgerId, newLogChannel, currentLogForLedger);
         Assert.assertEquals("Number of current active EntryLogs ", 1, entryLogManager.getCopyOfCurrentLogs().size());
         Assert.assertEquals("Number of rotated EntryLogs ", 0, entryLogManager.getRotatedLogChannels().size());
@@ -1294,7 +1273,7 @@ public class TestEntryLog {
 
         long ledgerId = 0L;
 
-        BufferedLogChannel newLogChannel = createDummyBufferedLogChannel(entryLogger, 1, conf);
+        EntryLogger.BufferedLogChannel newLogChannel = createDummyBufferedLogChannel(entryLogger, 1, conf);
         entryLogManager.setCurrentLogForLedgerAndAddToRotate(ledgerId, newLogChannel);
 
         AtomicBoolean exceptionOccured = new AtomicBoolean(false);
@@ -1311,7 +1290,7 @@ public class TestEntryLog {
                     entryLogManager.getCurrentLogIfPresent(newLogChannel.getLogId());
                     entryLogManager.getDirForNextEntryLog(ledgerDirsManager.getWritableLedgerDirs());
                     long newLedgerId = 100;
-                    BufferedLogChannel logChannelForNewLedger =
+                    EntryLogger.BufferedLogChannel logChannelForNewLedger =
                             createDummyBufferedLogChannel(entryLogger, newLedgerId, conf);
                     entryLogManager.setCurrentLogForLedgerAndAddToRotate(newLedgerId, logChannelForNewLedger);
                     entryLogManager.getCurrentLogIfPresent(newLedgerId);
@@ -1331,7 +1310,7 @@ public class TestEntryLog {
          * since for more than evictionPeriod, that ledger is not accessed and cache is cleaned up, mapping for that
          * ledger should not be available anymore
          */
-        BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
+        EntryLogger.BufferedLogChannel currentLogForLedger = entryLogManager.getCurrentLogForLedger(ledgerId);
         assertEquals("LogChannel for ledger " + ledgerId + " should be null", null, currentLogForLedger);
         // expected number of current active entryLogs is 1 since we created entrylog for 'newLedgerId'
         Assert.assertEquals("Number of current active EntryLogs ", 1, entryLogManager.getCopyOfCurrentLogs().size());
@@ -1371,7 +1350,7 @@ public class TestEntryLog {
         }
 
         for (long i = 0; i < numOfActiveLedgers; i++) {
-            BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
+            EntryLogger.BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
             Assert.assertTrue("unpersistedBytes should be greater than LOGFILE_HEADER_SIZE",
                     logChannel.getUnpersistedBytes() > EntryLogger.LOGFILE_HEADER_SIZE);
         }
@@ -1384,7 +1363,7 @@ public class TestEntryLog {
          * since we created new entrylog for all the activeLedgers, entrylogs of all the ledgers
          * should be rotated and hence the size of copyOfRotatedLogChannels should be numOfActiveLedgers
          */
-        List<BufferedLogChannel> rotatedLogs = entryLogManager.getRotatedLogChannels();
+        List<EntryLogger.BufferedLogChannel> rotatedLogs = entryLogManager.getRotatedLogChannels();
         Assert.assertEquals("Number of rotated entrylogs", numOfActiveLedgers, rotatedLogs.size());
 
         /*
@@ -1393,7 +1372,7 @@ public class TestEntryLog {
          *
          */
         for (long i = 0; i < numOfActiveLedgers; i++) {
-            BufferedLogChannel logChannel = entryLogManager.getCurrentLogForLedger(i);
+            EntryLogger.BufferedLogChannel logChannel = entryLogManager.getCurrentLogForLedger(i);
             Assert.assertEquals("unpersistedBytes should be LOGFILE_HEADER_SIZE", EntryLogger.LOGFILE_HEADER_SIZE,
                     logChannel.getUnpersistedBytes());
         }
@@ -1405,7 +1384,7 @@ public class TestEntryLog {
         }
 
         for (long i = 0; i < numOfActiveLedgers; i++) {
-            BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
+            EntryLogger.BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
             Assert.assertTrue("unpersistedBytes should be greater than LOGFILE_HEADER_SIZE",
                     logChannel.getUnpersistedBytes() > EntryLogger.LOGFILE_HEADER_SIZE);
         }
@@ -1424,7 +1403,7 @@ public class TestEntryLog {
          * after flush (flushCurrentLogs) unpersistedBytes should be 0.
          */
         for (long i = 0; i < numOfActiveLedgers; i++) {
-            BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
+            EntryLogger.BufferedLogChannel logChannel =  entryLogManager.getCurrentLogForLedger(i);
             Assert.assertEquals("unpersistedBytes should be 0", 0L, logChannel.getUnpersistedBytes());
         }
     }
@@ -1704,8 +1683,8 @@ public class TestEntryLog {
      * currentLogForLedger against the provided expected ledgerDirs.
      */
     void addEntryAndValidateFolders(EntryLogger entryLogger, EntryLogManagerBase entryLogManager, int entryId,
-            File expectedDirForLedger0, boolean equalsForLedger0, File expectedDirForLedger1,
-            File expectedDirForLedger2) throws IOException {
+                                    File expectedDirForLedger0, boolean equalsForLedger0, File expectedDirForLedger1,
+                                    File expectedDirForLedger2) throws IOException {
         entryLogger.addEntry(0L, generateEntry(0, entryId));
         entryLogger.addEntry(1L, generateEntry(1, entryId));
         entryLogger.addEntry(2L, generateEntry(2, entryId));

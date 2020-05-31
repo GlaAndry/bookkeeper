@@ -20,11 +20,12 @@
  */
 package org.apache.bookkeeper.client;
 
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-
+import org.apache.bookkeeper.client.BKException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Test for extracting codes from BKException.

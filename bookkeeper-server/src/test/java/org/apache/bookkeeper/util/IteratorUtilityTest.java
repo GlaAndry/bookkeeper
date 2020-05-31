@@ -19,16 +19,13 @@
  */
 package org.apache.bookkeeper.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.PrimitiveIterator;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
-
+import org.apache.bookkeeper.util.IteratorUtility;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 /**
  * Testsuite for IteratorUtility methods.

@@ -20,10 +20,10 @@
  */
 package org.apache.bookkeeper.proto;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.bookkeeper.proto.BKStats.OpStats;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests that Statistics updation in Bookie Server.

@@ -20,18 +20,6 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.bookie.BookieException.Code.OK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Random;
-
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Before;
@@ -40,6 +28,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.*;
+
+import static org.apache.bookkeeper.bookie.BookieException.Code.OK;
+import static org.junit.Assert.*;
 
 /**
  * Verify reads from ledgers with different digest types.

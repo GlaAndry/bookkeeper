@@ -20,35 +20,26 @@
  */
 package org.apache.bookkeeper.client.api;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.netty.buffer.Unpooled;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.bookkeeper.client.BKException;
-import org.apache.bookkeeper.client.BKException.BKDigestMatchException;
-import org.apache.bookkeeper.client.BKException.BKDuplicateEntryIdException;
-import org.apache.bookkeeper.client.BKException.BKLedgerFencedException;
-import org.apache.bookkeeper.client.BKException.BKNoSuchLedgerExistsOnMetadataServerException;
-import org.apache.bookkeeper.client.BKException.BKUnauthorizedAccessException;
+import org.apache.bookkeeper.client.BKException.*;
 import org.apache.bookkeeper.client.MockBookKeeperTestCase;
+import org.apache.bookkeeper.client.api.*;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.util.LoggerOutput;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.LoggingEvent;
+
+import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests of classes in this package.

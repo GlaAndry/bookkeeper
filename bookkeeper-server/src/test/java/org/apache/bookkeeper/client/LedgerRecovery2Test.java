@@ -21,10 +21,6 @@
 package org.apache.bookkeeper.client;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import org.apache.bookkeeper.client.api.DigestType;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.common.concurrent.FutureUtils;
@@ -33,9 +29,13 @@ import org.apache.bookkeeper.proto.BookkeeperInternalCallbacks.GenericCallbackFu
 import org.apache.bookkeeper.versioning.Versioned;
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Ledger recovery tests using mocks rather than a real cluster.
@@ -51,7 +51,7 @@ public class LedgerRecovery2Test {
     private static final BookieSocketAddress b5 = new BookieSocketAddress("b5", 3181);
 
     private static Versioned<LedgerMetadata> setupLedger(ClientContext clientCtx, long ledgerId,
-                                              List<BookieSocketAddress> bookies) throws Exception {
+                                                         List<BookieSocketAddress> bookies) throws Exception {
         LedgerMetadata md = LedgerMetadataBuilder.create()
             .withPassword(PASSWD).withDigestType(DigestType.CRC32C)
             .newEnsembleEntry(0, bookies).build();

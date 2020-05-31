@@ -20,11 +20,12 @@
  */
 package org.apache.bookkeeper.util;
 
-import java.nio.ByteBuffer;
-import java.util.Random;
-
+import org.apache.bookkeeper.util.ZeroBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
+import java.util.Random;
 
 /**
  * Testcases for ZeroBuffer.

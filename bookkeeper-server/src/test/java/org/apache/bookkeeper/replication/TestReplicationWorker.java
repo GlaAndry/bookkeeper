@@ -19,36 +19,11 @@
  */
 package org.apache.bookkeeper.replication;
 
-import static org.apache.bookkeeper.replication.ReplicationStats.NUM_ENTRIES_UNABLE_TO_READ_FOR_REPLICATION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import lombok.Cleanup;
-
-import org.apache.bookkeeper.client.BKException;
-import org.apache.bookkeeper.client.BookKeeper;
-import org.apache.bookkeeper.client.ClientUtil;
-import org.apache.bookkeeper.client.LedgerEntry;
-import org.apache.bookkeeper.client.LedgerHandle;
+import org.apache.bookkeeper.client.*;
 import org.apache.bookkeeper.common.util.OrderedScheduler;
 import org.apache.bookkeeper.conf.ServerConfiguration;
-import org.apache.bookkeeper.meta.LedgerManagerFactory;
-import org.apache.bookkeeper.meta.LedgerUnderreplicationManager;
-import org.apache.bookkeeper.meta.MetadataBookieDriver;
-import org.apache.bookkeeper.meta.MetadataClientDriver;
-import org.apache.bookkeeper.meta.MetadataDrivers;
+import org.apache.bookkeeper.meta.*;
 import org.apache.bookkeeper.meta.zk.ZKMetadataDriverBase;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.replication.ReplicationException.CompatibilityException;
@@ -64,6 +39,19 @@ import org.apache.zookeeper.KeeperException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.bookkeeper.replication.ReplicationStats.NUM_ENTRIES_UNABLE_TO_READ_FOR_REPLICATION;
+import static org.junit.Assert.*;
 
 /**
  * Test the ReplicationWroker, where it has to replicate the fragments from
@@ -594,7 +582,7 @@ public class TestReplicationWorker extends BookKeeperClusterTestCase {
         CopyOnWriteArrayList<Long> delayReplicationPeriods;
 
         public InjectedReplicationWorker(ServerConfiguration conf, StatsLogger statsLogger,
-                CopyOnWriteArrayList<Long> delayReplicationPeriods)
+                                         CopyOnWriteArrayList<Long> delayReplicationPeriods)
                 throws CompatibilityException, KeeperException, InterruptedException, IOException {
             super(conf, statsLogger);
             this.delayReplicationPeriods = delayReplicationPeriods;
@@ -845,7 +833,7 @@ public class TestReplicationWorker extends BookKeeperClusterTestCase {
     }
 
     private void verifyRecoveredLedgers(LedgerHandle lh, long startEntryId,
-            long endEntryId) throws BKException, InterruptedException {
+                                        long endEntryId) throws BKException, InterruptedException {
         LedgerHandle lhs = bkc.openLedgerNoRecovery(lh.getId(),
                 BookKeeper.DigestType.CRC32, TESTPASSWD);
         Enumeration<LedgerEntry> entries = lhs.readEntries(startEntryId,

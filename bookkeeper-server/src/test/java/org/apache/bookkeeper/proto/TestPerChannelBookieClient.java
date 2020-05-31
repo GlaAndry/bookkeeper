@@ -20,21 +20,11 @@
  */
 package org.apache.bookkeeper.proto;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.google.protobuf.ExtensionRegistry;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.bookkeeper.auth.AuthProviderFactoryFactory;
 import org.apache.bookkeeper.auth.ClientAuthProvider;
 import org.apache.bookkeeper.bookie.Bookie;
@@ -45,12 +35,19 @@ import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.proto.BookkeeperInternalCallbacks.GenericCallback;
 import org.apache.bookkeeper.proto.BookkeeperInternalCallbacks.ReadEntryCallback;
-import org.apache.bookkeeper.proto.PerChannelBookieClient.ConnectionState;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.apache.bookkeeper.util.SafeRunnable;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for PerChannelBookieClient. Historically, this class has
@@ -190,17 +187,17 @@ public class TestPerChannelBookieClient extends BookKeeperClusterTestCase {
             };
         Thread checkThread = new Thread() {
                 public void run() {
-                    ConnectionState state;
+                    PerChannelBookieClient.ConnectionState state;
                     Channel channel;
                     while (running.get()) {
                         synchronized (client) {
                             state = client.state;
                             channel = client.channel;
 
-                            if ((state == ConnectionState.CONNECTED
+                            if ((state == PerChannelBookieClient.ConnectionState.CONNECTED
                                  && (channel == null
                                      || !channel.isActive()))
-                                || (state != ConnectionState.CONNECTED
+                                || (state != PerChannelBookieClient.ConnectionState.CONNECTED
                                     && channel != null
                                     && channel.isActive())) {
                                 LOG.error("State({}) and channel({}) inconsistent " + channel,

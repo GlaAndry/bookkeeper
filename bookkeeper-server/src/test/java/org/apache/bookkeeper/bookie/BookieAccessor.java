@@ -20,9 +20,11 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import java.io.IOException;
-
+import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.CheckpointSource.Checkpoint;
+import org.apache.bookkeeper.bookie.CheckpointSourceList;
+
+import java.io.IOException;
 
 /**
  * Accessor class to avoid making Bookie internals public.

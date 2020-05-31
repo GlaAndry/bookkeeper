@@ -21,16 +21,14 @@
 
 package org.apache.bookkeeper.test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.bookkeeper.conf.ServerConfiguration;
+import org.apache.bookkeeper.proto.BookieServer;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.HashSet;
 
-import org.apache.bookkeeper.conf.ServerConfiguration;
-import org.apache.bookkeeper.proto.BookieServer;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test bookie expiration.

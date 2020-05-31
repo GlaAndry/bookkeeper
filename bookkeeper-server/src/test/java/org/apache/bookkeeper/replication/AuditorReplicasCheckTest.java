@@ -20,22 +20,6 @@
  */
 package org.apache.bookkeeper.replication;
 
-import static org.apache.bookkeeper.replication.ReplicationStats.AUDITOR_SCOPE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieException;
 import org.apache.bookkeeper.client.BKException;
@@ -46,16 +30,14 @@ import org.apache.bookkeeper.client.api.DigestType;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.discover.RegistrationManager;
-import org.apache.bookkeeper.meta.LedgerManager;
-import org.apache.bookkeeper.meta.LedgerManagerFactory;
-import org.apache.bookkeeper.meta.LedgerUnderreplicationManager;
-import org.apache.bookkeeper.meta.MetadataBookieDriver;
-import org.apache.bookkeeper.meta.MetadataDrivers;
+import org.apache.bookkeeper.meta.*;
 import org.apache.bookkeeper.meta.exceptions.MetadataException;
 import org.apache.bookkeeper.net.BookieSocketAddress;
+import org.apache.bookkeeper.replication.Auditor;
 import org.apache.bookkeeper.replication.AuditorPeriodicCheckTest.TestAuditor;
 import org.apache.bookkeeper.replication.ReplicationException.CompatibilityException;
 import org.apache.bookkeeper.replication.ReplicationException.UnavailableException;
+import org.apache.bookkeeper.replication.ReplicationStats;
 import org.apache.bookkeeper.stats.Gauge;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.stats.StatsLogger;
@@ -71,6 +53,18 @@ import org.apache.zookeeper.KeeperException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.bookkeeper.replication.ReplicationStats.AUDITOR_SCOPE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the logic of Auditor's ReplicasCheck.
@@ -108,8 +102,8 @@ public class AuditorReplicasCheckTest extends BookKeeperClusterTestCase {
         private final MultiKeyMap<String, Integer> errorReturnValueForGetAvailabilityOfEntriesOfLedger;
 
         public TestBookKeeperAdmin(BookKeeper bkc, StatsLogger statsLogger,
-                MultiKeyMap<String, AvailabilityOfEntriesOfLedger> returnAvailabilityOfEntriesOfLedger,
-                MultiKeyMap<String, Integer> errorReturnValueForGetAvailabilityOfEntriesOfLedger) {
+                                   MultiKeyMap<String, AvailabilityOfEntriesOfLedger> returnAvailabilityOfEntriesOfLedger,
+                                   MultiKeyMap<String, Integer> errorReturnValueForGetAvailabilityOfEntriesOfLedger) {
             super(bkc, statsLogger);
             this.returnAvailabilityOfEntriesOfLedger = returnAvailabilityOfEntriesOfLedger;
             this.errorReturnValueForGetAvailabilityOfEntriesOfLedger =
@@ -135,9 +129,9 @@ public class AuditorReplicasCheckTest extends BookKeeperClusterTestCase {
     }
 
     private TestStatsLogger startAuditorAndWaitForReplicasCheck(ServerConfiguration servConf,
-            MutableObject<Auditor> auditorRef,
-            MultiKeyMap<String, AvailabilityOfEntriesOfLedger> expectedReturnAvailabilityOfEntriesOfLedger,
-            MultiKeyMap<String, Integer> errorReturnValueForGetAvailabilityOfEntriesOfLedger)
+                                                                MutableObject<Auditor> auditorRef,
+                                                                MultiKeyMap<String, AvailabilityOfEntriesOfLedger> expectedReturnAvailabilityOfEntriesOfLedger,
+                                                                MultiKeyMap<String, Integer> errorReturnValueForGetAvailabilityOfEntriesOfLedger)
             throws MetadataException, CompatibilityException, KeeperException, InterruptedException,
             UnavailableException, UnknownHostException {
         LedgerManagerFactory mFactory = driver.getLedgerManagerFactory();
@@ -191,8 +185,8 @@ public class AuditorReplicasCheckTest extends BookKeeperClusterTestCase {
     }
 
     private void createClosedLedgerMetadata(LedgerManager lm, long ledgerId, int ensembleSize, int writeQuorumSize,
-            int ackQuorumSize, Map<Long, List<BookieSocketAddress>> segmentEnsembles, long lastEntryId, int length,
-            DigestType digestType, byte[] password) throws InterruptedException, ExecutionException {
+                                            int ackQuorumSize, Map<Long, List<BookieSocketAddress>> segmentEnsembles, long lastEntryId, int length,
+                                            DigestType digestType, byte[] password) throws InterruptedException, ExecutionException {
         LedgerMetadataBuilder ledgerMetadataBuilder = LedgerMetadataBuilder.create();
         ledgerMetadataBuilder.withEnsembleSize(ensembleSize).withWriteQuorumSize(writeQuorumSize)
                 .withAckQuorumSize(ackQuorumSize).withClosedState().withLastEntryId(lastEntryId).withLength(length)
@@ -205,8 +199,8 @@ public class AuditorReplicasCheckTest extends BookKeeperClusterTestCase {
     }
 
     private void createNonClosedLedgerMetadata(LedgerManager lm, long ledgerId, int ensembleSize, int writeQuorumSize,
-            int ackQuorumSize, Map<Long, List<BookieSocketAddress>> segmentEnsembles, DigestType digestType,
-            byte[] password) throws InterruptedException, ExecutionException {
+                                               int ackQuorumSize, Map<Long, List<BookieSocketAddress>> segmentEnsembles, DigestType digestType,
+                                               byte[] password) throws InterruptedException, ExecutionException {
         LedgerMetadataBuilder ledgerMetadataBuilder = LedgerMetadataBuilder.create();
         ledgerMetadataBuilder.withEnsembleSize(ensembleSize).withWriteQuorumSize(writeQuorumSize)
                 .withAckQuorumSize(ackQuorumSize).withDigestType(digestType).withPassword(password);
@@ -241,9 +235,9 @@ public class AuditorReplicasCheckTest extends BookKeeperClusterTestCase {
     }
 
     private void checkReplicasCheckStats(TestStatsLogger statsLogger,
-            int expectedNumLedgersFoundHavingNoReplicaOfAnEntry,
-            int expectedNumLedgersHavingLessThanAQReplicasOfAnEntry,
-            int expectedNumLedgersHavingLessThanWQReplicasOfAnEntry) {
+                                         int expectedNumLedgersFoundHavingNoReplicaOfAnEntry,
+                                         int expectedNumLedgersHavingLessThanAQReplicasOfAnEntry,
+                                         int expectedNumLedgersHavingLessThanWQReplicasOfAnEntry) {
         Gauge<? extends Number> numLedgersFoundHavingNoReplicaOfAnEntryGuage = statsLogger
                 .getGauge(ReplicationStats.NUM_LEDGERS_HAVING_NO_REPLICA_OF_AN_ENTRY);
         Gauge<? extends Number> numLedgersHavingLessThanAQReplicasOfAnEntryGuage = statsLogger

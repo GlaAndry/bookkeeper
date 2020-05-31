@@ -17,20 +17,18 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.concurrent.CompletableFuture;
 import org.apache.bookkeeper.client.api.WriteAdvHandle;
 import org.apache.bookkeeper.client.api.WriteFlag;
 import org.apache.bookkeeper.client.api.WriteHandle;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.junit.Test;
+
+import java.util.concurrent.CompletableFuture;
+
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
+import static org.junit.Assert.*;
 
 /**
  * Client side tests on deferred sync write flag.

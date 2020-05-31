@@ -21,12 +21,12 @@
 
 package org.apache.bookkeeper.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.bookkeeper.proto.BookieServer;
 import org.apache.bookkeeper.proto.LocalBookiesRegistry;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the correctness and the availability outside of its package of LocalBookiesRegistryTest.

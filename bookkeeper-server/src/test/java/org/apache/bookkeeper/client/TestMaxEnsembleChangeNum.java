@@ -20,15 +20,16 @@
  */
 package org.apache.bookkeeper.client;
 
+import org.apache.bookkeeper.client.api.WriteHandle;
+import org.apache.bookkeeper.conf.ClientConfiguration;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+
 import static org.apache.bookkeeper.client.api.BKException.Code.WriteException;
 import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import java.nio.ByteBuffer;
-import org.apache.bookkeeper.client.api.WriteHandle;
-import org.apache.bookkeeper.conf.ClientConfiguration;
-import org.junit.Test;
 
 /**
  * Test ensemble change has a max num.

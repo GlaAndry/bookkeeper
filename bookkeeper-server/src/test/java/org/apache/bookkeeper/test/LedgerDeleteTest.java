@@ -20,12 +20,6 @@
  */
 package org.apache.bookkeeper.test;
 
-import static org.junit.Assert.assertFalse;
-
-import java.io.File;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.bookie.InterleavedLedgerStorage;
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
 import org.apache.bookkeeper.client.BKException;
@@ -36,6 +30,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * This class tests the ledger delete functionality both from the BookKeeper

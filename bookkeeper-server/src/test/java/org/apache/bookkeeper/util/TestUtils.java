@@ -21,20 +21,19 @@
 
 package org.apache.bookkeeper.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bookkeeper.bookie.Bookie;
+import org.apache.bookkeeper.client.LedgerHandle;
+import org.apache.bookkeeper.client.api.ReadHandle;
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.bookkeeper.bookie.Bookie;
-import org.apache.bookkeeper.client.LedgerHandle;
-import org.apache.bookkeeper.client.api.ReadHandle;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 
 /**
  * Test utilities.

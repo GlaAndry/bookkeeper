@@ -20,38 +20,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.BookKeeperClientStats.ADD_OP;
-import static org.apache.bookkeeper.client.BookKeeperClientStats.ADD_OP_UR;
-import static org.apache.bookkeeper.client.BookKeeperClientStats.CLIENT_SCOPE;
-import static org.apache.bookkeeper.client.BookKeeperClientStats.READ_OP_DM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
-import io.netty.buffer.AbstractByteBufAllocator;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import io.netty.buffer.*;
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieException;
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
@@ -72,6 +42,18 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.apache.bookkeeper.client.BookKeeperClientStats.*;
+import static org.junit.Assert.*;
 
 /**
  * Testing ledger write entry cases.
@@ -244,7 +226,7 @@ public class BookieWriteLedgerTest extends
 
         // Replace the bookie with a fake bookie
         ServerConfiguration conf = killBookie(ensemble.get(0));
-        BookieWriteLedgerTest.CorruptReadBookie corruptBookie = new BookieWriteLedgerTest.CorruptReadBookie(conf);
+        CorruptReadBookie corruptBookie = new CorruptReadBookie(conf);
         bs.add(startBookie(conf, corruptBookie));
         bsConfs.add(conf);
 

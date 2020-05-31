@@ -23,29 +23,12 @@ package org.apache.bookkeeper.meta;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Optional;
-import java.util.PrimitiveIterator.OfLong;
-
-import org.apache.bookkeeper.bookie.BookieException;
-import org.apache.bookkeeper.bookie.CheckpointSource;
+import org.apache.bookkeeper.bookie.*;
 import org.apache.bookkeeper.bookie.CheckpointSource.Checkpoint;
-import org.apache.bookkeeper.bookie.Checkpointer;
-import org.apache.bookkeeper.bookie.CompactableLedgerStorage;
-import org.apache.bookkeeper.bookie.EntryLocation;
-import org.apache.bookkeeper.bookie.EntryLogger;
-import org.apache.bookkeeper.bookie.LastAddConfirmedUpdateNotification;
-import org.apache.bookkeeper.bookie.LedgerDirsManager;
-import org.apache.bookkeeper.bookie.StateManager;
 import org.apache.bookkeeper.common.util.OrderedScheduler;
 import org.apache.bookkeeper.common.util.Watcher;
 import org.apache.bookkeeper.conf.ServerConfiguration;
+import org.apache.bookkeeper.meta.*;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.stats.StatsLogger;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
@@ -55,6 +38,11 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.PrimitiveIterator.OfLong;
 
 /**
  * Test case to run over serveral ledger managers.
@@ -86,12 +74,12 @@ public abstract class LedgerManagerTestCase extends BookKeeperClusterTestCase {
     @Override
     protected String getMetadataServiceUri(String ledgersRootPath) {
         String ledgerManagerType;
-        if (lmFactoryClass == org.apache.bookkeeper.meta.FlatLedgerManagerFactory.class) {
-            ledgerManagerType = org.apache.bookkeeper.meta.FlatLedgerManagerFactory.NAME;
+        if (lmFactoryClass == FlatLedgerManagerFactory.class) {
+            ledgerManagerType = FlatLedgerManagerFactory.NAME;
         } else if (lmFactoryClass == LongHierarchicalLedgerManagerFactory.class) {
             ledgerManagerType = LongHierarchicalLedgerManagerFactory.NAME;
-        } else if (lmFactoryClass == org.apache.bookkeeper.meta.MSLedgerManagerFactory.class) {
-            ledgerManagerType = org.apache.bookkeeper.meta.MSLedgerManagerFactory.NAME;
+        } else if (lmFactoryClass == MSLedgerManagerFactory.class) {
+            ledgerManagerType = MSLedgerManagerFactory.NAME;
         } else {
             ledgerManagerType = HierarchicalLedgerManagerFactory.NAME;
         }

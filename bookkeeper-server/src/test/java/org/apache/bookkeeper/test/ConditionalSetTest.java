@@ -20,8 +20,6 @@
  */
 package org.apache.bookkeeper.test;
 
-import java.io.IOException;
-
 import org.apache.bookkeeper.client.BKException;
 import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
@@ -32,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Tests conditional set of the ledger metadata znode.
@@ -70,7 +70,7 @@ public class ConditionalSetTest extends BookKeeperClusterTestCase {
 
     @Test
     public void testConditionalSet() throws IOException, InterruptedException,
-                                    BKException, KeeperException {
+            BKException, KeeperException {
         LedgerHandle lhWrite = bkc.createLedger(digestType, new byte[] { 'a',
                 'b' });
         long ledgerId = lhWrite.getId();

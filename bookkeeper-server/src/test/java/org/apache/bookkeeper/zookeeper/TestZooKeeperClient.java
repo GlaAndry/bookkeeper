@@ -20,38 +20,16 @@
  */
 package org.apache.bookkeeper.zookeeper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import junit.framework.TestCase;
-
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.test.ZooKeeperCluster;
 import org.apache.bookkeeper.test.ZooKeeperClusterUtil;
 import org.apache.bookkeeper.test.ZooKeeperUtil;
-import org.apache.zookeeper.AsyncCallback;
-import org.apache.zookeeper.AsyncCallback.ACLCallback;
-import org.apache.zookeeper.AsyncCallback.Children2Callback;
-import org.apache.zookeeper.AsyncCallback.DataCallback;
-import org.apache.zookeeper.AsyncCallback.StatCallback;
-import org.apache.zookeeper.AsyncCallback.StringCallback;
-import org.apache.zookeeper.AsyncCallback.VoidCallback;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.*;
+import org.apache.zookeeper.AsyncCallback.*;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 import org.junit.After;
@@ -64,8 +42,15 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * Test the wrapper of {@link org.apache.zookeeper.ZooKeeper} client.
+ * Test the wrapper of {@link ZooKeeper} client.
  */
 @RunWith(Parameterized.class)
 public class TestZooKeeperClient extends TestCase {
@@ -135,7 +120,7 @@ public class TestZooKeeperClient extends TestCase {
     class ShutdownZkServerClient extends ZooKeeperClient {
 
         ShutdownZkServerClient(String connectString, int sessionTimeoutMs,
-                ZooKeeperWatcherBase watcher, RetryPolicy operationRetryPolicy)
+                               ZooKeeperWatcherBase watcher, RetryPolicy operationRetryPolicy)
                 throws IOException {
             super(connectString, sessionTimeoutMs, watcher,
                     new BoundExponentialBackoffRetryPolicy(sessionTimeoutMs, sessionTimeoutMs, Integer.MAX_VALUE),
@@ -496,7 +481,7 @@ public class TestZooKeeperClient extends TestCase {
         Stat stat = client.exists(path, new Watcher() {
             @Override
             public void process(WatchedEvent event) {
-                if (event.getType() == Watcher.Event.EventType.NodeDeleted) {
+                if (event.getType() == EventType.NodeDeleted) {
                     isDeleted.set(true);
                     latch.countDown();
                 }

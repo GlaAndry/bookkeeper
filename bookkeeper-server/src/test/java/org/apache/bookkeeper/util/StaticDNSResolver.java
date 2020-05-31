@@ -17,21 +17,16 @@
  */
 package org.apache.bookkeeper.util;
 
+import org.apache.bookkeeper.client.ITopologyAwareEnsemblePlacementPolicy;
+import org.apache.bookkeeper.client.RackChangeNotifier;
+import org.apache.bookkeeper.net.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.apache.bookkeeper.client.ITopologyAwareEnsemblePlacementPolicy;
-import org.apache.bookkeeper.client.RackChangeNotifier;
-import org.apache.bookkeeper.net.AbstractDNSToSwitchMapping;
-import org.apache.bookkeeper.net.BookieNode;
-import org.apache.bookkeeper.net.BookieSocketAddress;
-import org.apache.bookkeeper.net.DNSToSwitchMapping;
-import org.apache.bookkeeper.net.NetworkTopology;
-import org.apache.bookkeeper.net.NodeBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implements {@link DNSToSwitchMapping} via static mappings. Used in test cases to simulate racks.

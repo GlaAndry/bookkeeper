@@ -20,12 +20,8 @@
  */
 package org.apache.bookkeeper.replication;
 
-import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
-import static org.junit.Assert.assertEquals;
-
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-
 import lombok.Cleanup;
 import org.apache.bookkeeper.client.ClientUtil;
 import org.apache.bookkeeper.client.LedgerMetadataBuilder;
@@ -40,6 +36,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
+import static org.junit.Assert.assertEquals;
 
 /**
  * This test verifies that the period check on the auditor

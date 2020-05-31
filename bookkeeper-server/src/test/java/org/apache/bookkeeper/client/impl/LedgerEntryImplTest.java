@@ -19,15 +19,17 @@
 
 package org.apache.bookkeeper.client.impl;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.bookkeeper.client.impl.LedgerEntryImpl;
+import org.junit.After;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+
 import static com.google.common.base.Charsets.UTF_8;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import java.nio.ByteBuffer;
-import org.junit.After;
-import org.junit.Test;
 
 /**
  * Unit test for {@link LedgerEntryImpl}.

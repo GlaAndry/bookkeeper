@@ -20,7 +20,7 @@
 package org.apache.bookkeeper.client;
 
 import io.netty.buffer.ByteBuf;
-
+import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.util.ByteBufList;
 
 /**

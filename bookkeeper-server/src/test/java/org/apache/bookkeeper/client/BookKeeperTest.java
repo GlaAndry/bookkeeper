@@ -20,30 +20,7 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.BookKeeperClientStats.WRITE_DELAYED_DUE_TO_NOT_ENOUGH_FAULT_DOMAINS;
-import static org.apache.bookkeeper.client.BookKeeperClientStats.WRITE_TIMED_OUT_DUE_TO_NOT_ENOUGH_FAULT_DOMAINS;
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.netty.util.IllegalReferenceCountException;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
 import org.apache.bookkeeper.client.AsyncCallback.ReadCallback;
 import org.apache.bookkeeper.client.BKException.BKBookieHandleNotAvailableException;
@@ -62,19 +39,32 @@ import org.apache.bookkeeper.zookeeper.BoundExponentialBackoffRetryPolicy;
 import org.apache.bookkeeper.zookeeper.ZooKeeperClient;
 import org.apache.bookkeeper.zookeeper.ZooKeeperWatcherBase;
 import org.apache.zookeeper.AsyncCallback.StringCallback;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.*;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.ACL;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.bookkeeper.client.BookKeeperClientStats.WRITE_DELAYED_DUE_TO_NOT_ENOUGH_FAULT_DOMAINS;
+import static org.apache.bookkeeper.client.BookKeeperClientStats.WRITE_TIMED_OUT_DUE_TO_NOT_ENOUGH_FAULT_DOMAINS;
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
+import static org.junit.Assert.*;
 
 /**
  * Tests of the main BookKeeper client.
@@ -367,7 +357,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             }
 
             try (BookKeeper bkReader = new BookKeeper(clientConfiguration);
-                LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
+                 LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertTrue(
                     "Expected LAC of rlh: " + (numOfEntries - 2) + " actual LAC of rlh: " + rlh.getLastAddConfirmed(),
                     (rlh.getLastAddConfirmed() == (numOfEntries - 2)));
@@ -388,7 +378,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             }
 
             try (BookKeeper bkReader = new BookKeeper(clientConfiguration);
-                LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
+                 LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertTrue(
                     "Expected LAC of rlh: " + (numOfEntries - 2) + " actual LAC of rlh: " + rlh.getLastAddConfirmed(),
                     (rlh.getLastAddConfirmed() == (numOfEntries - 2)));
@@ -455,7 +445,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             restartBookies();
 
             try (BookKeeper bkReader = new BookKeeper(clientConfiguration);
-                LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
+                 LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertTrue(
                     "Expected LAC of rlh: " + (numOfEntries - 2) + " actual LAC of rlh: " + rlh.getLastAddConfirmed(),
                     (rlh.getLastAddConfirmed() == (numOfEntries - 2)));
@@ -476,7 +466,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             }
 
             try (BookKeeper bkReader = new BookKeeper(clientConfiguration);
-                LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
+                 LedgerHandle rlh = bkReader.openLedgerNoRecovery(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertTrue(
                     "Expected LAC of rlh: " + (numOfEntries - 2) + " actual LAC of rlh: " + rlh.getLastAddConfirmed(),
                     (rlh.getLastAddConfirmed() == (numOfEntries - 2)));
@@ -540,7 +530,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
 
             // open ledger with fencing, this will repair the ledger and make the last entry readable
             try (BookKeeper bkReader = new BookKeeper(clientConfiguration);
-                LedgerHandle rlh = bkReader.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
+                 LedgerHandle rlh = bkReader.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertTrue(
                     "Expected LAC of rlh: " + (numOfEntries - 1) + " actual LAC of rlh: " + rlh.getLastAddConfirmed(),
                     (rlh.getLastAddConfirmed() == (numOfEntries - 1)));
@@ -586,7 +576,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
                 try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                     assertEquals(numEntries - 1, lh.readLastConfirmed());
                     for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                        readEntries.hasMoreElements();) {
+                         readEntries.hasMoreElements();) {
                         LedgerEntry entry = readEntries.nextElement();
                         assertArrayEquals(data, entry.getEntry());
                     }
@@ -638,7 +628,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertEquals(numEntries - 1, lh.readLastConfirmed());
                 for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                    readEntries.hasMoreElements();) {
+                     readEntries.hasMoreElements();) {
                     LedgerEntry entry = readEntries.nextElement();
                     try {
                         entry.data.release();
@@ -659,7 +649,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertEquals(numEntries - 1, lh.readLastConfirmed());
                 for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                    readEntries.hasMoreElements();) {
+                     readEntries.hasMoreElements();) {
                     LedgerEntry entry = readEntries.nextElement();
                     try {
                         entry.data.release();
@@ -679,7 +669,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertEquals(numEntries - 1, lh.readLastConfirmed());
                 for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                    readEntries.hasMoreElements();) {
+                     readEntries.hasMoreElements();) {
                     LedgerEntry entry = readEntries.nextElement();
                     assertTrue("Can't release entry " + entry.getEntryId() + ": ref = " + entry.data.refCnt(),
                         entry.data.release());
@@ -703,7 +693,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertEquals(numEntries - 1, lh.readLastConfirmed());
                 for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                    readEntries.hasMoreElements();) {
+                     readEntries.hasMoreElements();) {
                     LedgerEntry entry = readEntries.nextElement();
                     // ButeBufs not reference counter
                     assertTrue("Can't release entry " + entry.getEntryId() + ": ref = " + entry.data.refCnt(),
@@ -724,7 +714,7 @@ public class BookKeeperTest extends BookKeeperClusterTestCase {
             try (LedgerHandle lh = bkc.openLedger(ledgerId, digestType, "testPasswd".getBytes())) {
                 assertEquals(numEntries - 1, lh.readLastConfirmed());
                 for (Enumeration<LedgerEntry> readEntries = lh.readEntries(0, numEntries - 1);
-                    readEntries.hasMoreElements();) {
+                     readEntries.hasMoreElements();) {
                     LedgerEntry entry = readEntries.nextElement();
                     entry.getEntry();
                     try {

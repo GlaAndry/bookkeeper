@@ -20,13 +20,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.util.function.BooleanSupplier;
-
 import org.apache.bookkeeper.common.util.OrderedExecutor;
 import org.apache.bookkeeper.common.util.OrderedScheduler;
 import org.apache.bookkeeper.conf.ClientConfiguration;
@@ -37,6 +32,10 @@ import org.apache.bookkeeper.proto.BookieClient;
 import org.apache.bookkeeper.proto.MockBookieClient;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.mockito.Mockito;
+
+import java.util.function.BooleanSupplier;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Mock client context to allow testing client functionality with no external dependencies.

@@ -18,17 +18,18 @@
 
 package org.apache.bookkeeper.discover;
 
+import org.apache.bookkeeper.discover.RegistrationClient;
+import org.apache.bookkeeper.net.BookieSocketAddress;
+import org.apache.bookkeeper.versioning.LongVersion;
+import org.apache.bookkeeper.versioning.Versioned;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.bookkeeper.net.BookieSocketAddress;
-import org.apache.bookkeeper.versioning.LongVersion;
-import org.apache.bookkeeper.versioning.Versioned;
 
 /**
  * Mock implementation of registration client.

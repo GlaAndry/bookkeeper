@@ -17,27 +17,9 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS;
-import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
-import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
-import static org.junit.Assert.assertNotEquals;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.HashedWheelTimer;
-
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import junit.framework.TestCase;
-
 import org.apache.bookkeeper.client.BookieInfoReader.BookieInfo;
 import org.apache.bookkeeper.client.EnsemblePlacementPolicy.PlacementPolicyAdherence;
 import org.apache.bookkeeper.client.EnsemblePlacementPolicy.PlacementResult;
@@ -52,6 +34,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS;
+import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
+import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * Test the zoneaware ensemble placement policy.
  */
@@ -64,7 +55,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
     DistributionSchedule.WriteSet writeSet = DistributionSchedule.NULL_WRITE_SET;
     ClientConfiguration conf = new ClientConfiguration();
     BookieSocketAddress addr1, addr2, addr3, addr4;
-    io.netty.util.HashedWheelTimer timer;
+    HashedWheelTimer timer;
 
     @Override
     protected void setUp() throws Exception {
@@ -110,7 +101,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
     }
 
     static BookiesHealthInfo getBookiesHealthInfo(Map<BookieSocketAddress, Long> bookieFailureHistory,
-            Map<BookieSocketAddress, Long> bookiePendingRequests) {
+                                                  Map<BookieSocketAddress, Long> bookiePendingRequests) {
         return new BookiesHealthInfo() {
             @Override
             public long getBookieFailureHistory(BookieSocketAddress bookieSocketAddress) {
@@ -972,7 +963,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
 
         Map<BookieSocketAddress, Long> selectionCounts = new HashMap<BookieSocketAddress, Long>();
         int numTries = 50000;
-        EnsemblePlacementPolicy.PlacementResult<List<BookieSocketAddress>> newEnsembleResponse;
+        PlacementResult<List<BookieSocketAddress>> newEnsembleResponse;
         List<BookieSocketAddress> newEnsemble;
         for (BookieSocketAddress addr : addrs) {
             selectionCounts.put(addr, (long) 0);
@@ -997,7 +988,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
         newEnsemble.add(addr2);
         Set<BookieSocketAddress> excludedBookies = new HashSet<BookieSocketAddress>();
         excludedBookies.add(addr1);
-        EnsemblePlacementPolicy.PlacementResult<BookieSocketAddress> replacedBookieResponse;
+        PlacementResult<BookieSocketAddress> replacedBookieResponse;
         BookieSocketAddress replacedBookie;
         for (int i = 0; i < numTries; i++) {
             // replace bookie response
@@ -1048,7 +1039,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
 
         // we will never use addr4 even it is in the stabilized network topology
         for (int i = 0; i < 5; i++) {
-            EnsemblePlacementPolicy.PlacementResult<List<BookieSocketAddress>> ensembleResponse = zepp.newEnsemble(3, 3,
+            PlacementResult<List<BookieSocketAddress>> ensembleResponse = zepp.newEnsemble(3, 3,
                     2, null, new HashSet<BookieSocketAddress>());
             List<BookieSocketAddress> ensemble = ensembleResponse.getResult();
             assertFalse(ensemble.contains(addr4));
@@ -1058,7 +1049,7 @@ public class TestZoneawareEnsemblePlacementPolicy extends TestCase {
 
         // we could still use addr4 for urgent allocation if it is just bookie
         // flapping
-        EnsemblePlacementPolicy.PlacementResult<List<BookieSocketAddress>> ensembleResponse = zepp.newEnsemble(4, 4, 2,
+        PlacementResult<List<BookieSocketAddress>> ensembleResponse = zepp.newEnsemble(4, 4, 2,
                 null, new HashSet<BookieSocketAddress>());
         List<BookieSocketAddress> ensemble = ensembleResponse.getResult();
         assertTrue(ensemble.contains(addr4));

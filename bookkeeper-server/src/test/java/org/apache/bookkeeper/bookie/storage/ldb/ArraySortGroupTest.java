@@ -20,9 +20,10 @@
  */
 package org.apache.bookkeeper.bookie.storage.ldb;
 
-import static org.junit.Assert.assertArrayEquals;
-
+import org.apache.bookkeeper.bookie.storage.ldb.ArrayGroupSort;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Unit test for {@link ArrayGroupSort}.

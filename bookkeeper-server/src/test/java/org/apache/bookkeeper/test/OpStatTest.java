@@ -21,21 +21,17 @@
 
 package org.apache.bookkeeper.test;
 
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.BOOKIE_SCOPE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.JOURNAL_CB_QUEUE_SIZE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.JOURNAL_FORCE_WRITE_QUEUE_SIZE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.JOURNAL_QUEUE_SIZE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.JOURNAL_SCOPE;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.SERVER_SCOPE;
-import static org.junit.Assert.assertTrue;
-
-import java.util.function.BiConsumer;
 import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.util.MathUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.function.BiConsumer;
+
+import static org.apache.bookkeeper.bookie.BookKeeperServerStats.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Basic tests to verify that stats are being updated as expected.

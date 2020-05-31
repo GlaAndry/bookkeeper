@@ -20,11 +20,13 @@
  */
 package org.apache.bookkeeper.client.api;
 
-import static org.apache.bookkeeper.client.api.WriteFlag.DEFERRED_SYNC;
-import static org.junit.Assert.assertEquals;
+import org.apache.bookkeeper.client.api.WriteFlag;
+import org.junit.Test;
 
 import java.util.EnumSet;
-import org.junit.Test;
+
+import static org.apache.bookkeeper.client.api.WriteFlag.DEFERRED_SYNC;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for WriteFlag.

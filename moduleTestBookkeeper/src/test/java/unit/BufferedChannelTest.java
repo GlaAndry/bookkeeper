@@ -26,7 +26,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.bookkeeper.bookie.BufferedChannel;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -39,93 +41,59 @@ import java.util.Random;
 public class BufferedChannelTest {
 
     private static Random rand = new Random();
-    private static final int INTERNAL_BUFFER_WRITE_CAPACITY = 65536;
-    private static final int INTERNAL_BUFFER_READ_CAPACITY = 512;
+    private static final int INTERNAL_BUFFER_WRITE_CAPACITY = -1;
+    private static final int INTERNAL_BUFFER_READ_CAPACITY = -1;
+
+    @Rule
+    public ExpectedException ex = ExpectedException.none();
 
     @Test
-    public void testBufferedChannelWithNoBoundOnUnpersistedBytes() throws Exception {
-        testBufferedChannel(5000, 30, 0, false, false);
+    public void testObjectInstantiation() throws Exception {
+        ex.expect(Exception.class);
+        createBufferedChannel(5000, 30, 0, false, false);
     }
 
     @Test
-    public void testBufferedChannelWithBoundOnUnpersistedBytes() throws Exception {
-        testBufferedChannel(5000, 30, 5000 * 28, false, false);
+    public void testRead() throws Exception {
+        ex.expect(Exception.class);
+        BufferedChannel channel = createBufferedChannel(5000, 30, 0, false, false);
+        ByteBuf dataBuf = generateEntry(5000);
+
+        dataBuf.resetReaderIndex();
+        dataBuf.resetWriterIndex();
+        channel.read(dataBuf, -1);
+        channel.close();
     }
 
     @Test
-    public void testBufferedChannelWithBoundOnUnpersistedBytesAndFlush() throws Exception {
-        testBufferedChannel(5000, 30, 5000 * 28, true, false);
-    }
+    public void testWrite() throws Exception{
+        ex.expect(Exception.class);
+        BufferedChannel channel = createBufferedChannel(5000, 30, 0, false, false);
 
-    @Test
-    public void testBufferedChannelFlushNoForceWrite() throws Exception {
-        testBufferedChannel(5000, 30, 0, true, false);
-    }
-
-    @Test
-    public void testBufferedChannelForceWriteNoFlush() throws Exception {
-        testBufferedChannel(5000, 30, 0, false, true);
-    }
-
-    @Test
-    public void testBufferedChannelFlushForceWrite() throws Exception {
-        testBufferedChannel(5000, 30, 0, true, true);
-    }
-
-    public void testBufferedChannel(int byteBufLength, int numOfWrites, int unpersistedBytesBound, boolean flush,
-            boolean shouldForceWrite) throws Exception {
-        File newLogFile = File.createTempFile("test", "log");
-        newLogFile.deleteOnExit();
-        FileChannel fileChannel = new RandomAccessFile(newLogFile, "rw").getChannel();
-
-        BufferedChannel logChannel = new BufferedChannel(UnpooledByteBufAllocator.DEFAULT, fileChannel,
-                INTERNAL_BUFFER_WRITE_CAPACITY, INTERNAL_BUFFER_READ_CAPACITY, unpersistedBytesBound);
-
-        ByteBuf dataBuf = generateEntry(byteBufLength);
+        ByteBuf dataBuf = generateEntry(5000);
         dataBuf.markReaderIndex();
         dataBuf.markWriterIndex();
+        dataBuf.writeBytes("testtesttest".getBytes());
+        channel.write(dataBuf);
+    }
 
-        for (int i = 0; i < numOfWrites; i++) {
-            logChannel.write(dataBuf);
-            dataBuf.resetReaderIndex();
-            dataBuf.resetWriterIndex();
-        }
+    @Test
+    public void testFlush() throws Exception{
+        ex.expect(Exception.class);
+        BufferedChannel logChannel = createBufferedChannel(5000, 30, 0, false, false);
+        logChannel.flush();
+        Assert.assertEquals(0, logChannel.getFileChannelPosition());
 
-        if (flush && shouldForceWrite) {
-            logChannel.flushAndForceWrite(false);
-        } else if (flush) {
-            logChannel.flush();
-        } else if (shouldForceWrite) {
-            logChannel.forceWrite(false);
-        }
+    }
 
-        int expectedNumOfUnpersistedBytes = 0;
 
-        if (flush && shouldForceWrite) {
-            /*
-             * if flush call is made with shouldForceWrite,
-             * then expectedNumOfUnpersistedBytes should be zero.
-             */
-            expectedNumOfUnpersistedBytes = 0;
-        } else if (!flush && shouldForceWrite) {
-            /*
-             * if flush is not called then internal write buffer is not flushed,
-             * but while adding entries to BufferedChannel if writeBuffer has
-             * reached its capacity then it will call flush method, and the data
-             * gets added to the file buffer. So though explicitly we are not
-             * calling flush method, implicitly flush gets called when
-             * writeBuffer reaches its capacity.
-             */
-            expectedNumOfUnpersistedBytes = (byteBufLength * numOfWrites) % INTERNAL_BUFFER_WRITE_CAPACITY;
-        } else {
-            expectedNumOfUnpersistedBytes = (byteBufLength * numOfWrites) - unpersistedBytesBound;
-        }
+    public BufferedChannel createBufferedChannel(int byteBufLength, int numOfWrites, int unpersistedBytesBound, boolean flush,
+                                                 boolean shouldForceWrite) throws Exception {
+        File file = File.createTempFile("test", "log");
+        file.deleteOnExit();
+        FileChannel fileChannel = new RandomAccessFile(file, "rw").getChannel();
 
-        if (unpersistedBytesBound > 0) {
-            Assert.assertEquals("Unpersisted bytes", expectedNumOfUnpersistedBytes, logChannel.getUnpersistedBytes());
-        }
-        logChannel.close();
-        fileChannel.close();
+        return new BufferedChannel(UnpooledByteBufAllocator.DEFAULT, fileChannel, INTERNAL_BUFFER_WRITE_CAPACITY, INTERNAL_BUFFER_READ_CAPACITY, unpersistedBytesBound);
     }
 
     private static ByteBuf generateEntry(int length) {

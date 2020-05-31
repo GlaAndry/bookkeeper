@@ -24,32 +24,23 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bookkeeper.bookie.FileInfoBackingCache.CachedFileInfo;
-
+import org.apache.bookkeeper.bookie.Bookie;
+import org.apache.bookkeeper.bookie.FileInfo;
+import org.apache.bookkeeper.bookie.FileInfoBackingCache;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * Tests for FileInfoBackingCache.
@@ -90,11 +81,11 @@ public class FileInfoBackingCacheTest {
                     f.deleteOnExit();
                     return f;
                 }, FileInfo.CURRENT_HEADER_VERSION);
-        CachedFileInfo fi = cache.loadFileInfo(1, masterKey);
+        FileInfoBackingCache.CachedFileInfo fi = cache.loadFileInfo(1, masterKey);
         Assert.assertEquals(fi.getRefCount(), 1);
-        CachedFileInfo fi2 = cache.loadFileInfo(2, masterKey);
+        FileInfoBackingCache.CachedFileInfo fi2 = cache.loadFileInfo(2, masterKey);
         Assert.assertEquals(fi2.getRefCount(), 1);
-        CachedFileInfo fi3 = cache.loadFileInfo(1, null);
+        FileInfoBackingCache.CachedFileInfo fi3 = cache.loadFileInfo(1, null);
         Assert.assertEquals(fi, fi3);
         Assert.assertEquals(fi3.getRefCount(), 2);
 
@@ -103,7 +94,7 @@ public class FileInfoBackingCacheTest {
         fi3.release();
 
         Assert.assertEquals(fi.getRefCount(), FileInfoBackingCache.DEAD_REF);
-        CachedFileInfo fi4 = cache.loadFileInfo(1, null);
+        FileInfoBackingCache.CachedFileInfo fi4 = cache.loadFileInfo(1, null);
         Assert.assertFalse(fi4 == fi);
         Assert.assertEquals(fi.getRefCount(), FileInfoBackingCache.DEAD_REF);
         Assert.assertEquals(fi4.getRefCount(), 1);
@@ -136,16 +127,16 @@ public class FileInfoBackingCacheTest {
                     f.deleteOnExit();
                     return f;
                 }, FileInfo.CURRENT_HEADER_VERSION);
-        Iterable<Future<Set<CachedFileInfo>>> futures =
+        Iterable<Future<Set<FileInfoBackingCache.CachedFileInfo>>> futures =
             IntStream.range(0, numRunners).mapToObj(
                     (i) -> {
-                        Callable<Set<CachedFileInfo>> c = () -> {
+                        Callable<Set<FileInfoBackingCache.CachedFileInfo>> c = () -> {
                             Random r = new Random();
-                            List<CachedFileInfo> fileInfos = new ArrayList<>();
-                            Set<CachedFileInfo> allFileInfos = new HashSet<>();
+                            List<FileInfoBackingCache.CachedFileInfo> fileInfos = new ArrayList<>();
+                            Set<FileInfoBackingCache.CachedFileInfo> allFileInfos = new HashSet<>();
                             while (!done.get()) {
                                 if (r.nextBoolean() && fileInfos.size() < 5) { // take a reference
-                                    CachedFileInfo fi = cache.loadFileInfo(r.nextInt(maxLedgerId), masterKey);
+                                    FileInfoBackingCache.CachedFileInfo fi = cache.loadFileInfo(r.nextInt(maxLedgerId), masterKey);
                                     Assert.assertFalse(fi.isClosed());
                                     allFileInfos.add(fi);
                                     fileInfos.add(fi);
@@ -156,7 +147,7 @@ public class FileInfoBackingCacheTest {
                                     }
                                 }
                             }
-                            for (CachedFileInfo fi : fileInfos) {
+                            for (FileInfoBackingCache.CachedFileInfo fi : fileInfos) {
                                 Assert.assertFalse(fi.isClosed());
                                 fi.release();
                             }
@@ -168,12 +159,12 @@ public class FileInfoBackingCacheTest {
         done.set(true);
 
         // ensure all threads are finished operating on cache, before checking any
-        for (Future<Set<CachedFileInfo>> f : futures) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
             f.get();
         }
 
-        for (Future<Set<CachedFileInfo>> f : futures) {
-            for (CachedFileInfo fi : f.get()) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
+            for (FileInfoBackingCache.CachedFileInfo fi : f.get()) {
                 Assert.assertTrue(fi.isClosed());
                 Assert.assertEquals(FileInfoBackingCache.DEAD_REF, fi.getRefCount());
             }
@@ -196,13 +187,13 @@ public class FileInfoBackingCacheTest {
                     return f;
                 }, FileInfo.CURRENT_HEADER_VERSION);
 
-        Iterable<Future<Set<CachedFileInfo>>> futures =
+        Iterable<Future<Set<FileInfoBackingCache.CachedFileInfo>>> futures =
             IntStream.range(0, 2).mapToObj(
                     (i) -> {
-                        Callable<Set<CachedFileInfo>> c = () -> {
-                            Set<CachedFileInfo> allFileInfos = new HashSet<>();
+                        Callable<Set<FileInfoBackingCache.CachedFileInfo>> c = () -> {
+                            Set<FileInfoBackingCache.CachedFileInfo> allFileInfos = new HashSet<>();
                             while (!done.get()) {
-                                CachedFileInfo fi = cache.loadFileInfo(1, masterKey);
+                                FileInfoBackingCache.CachedFileInfo fi = cache.loadFileInfo(1, masterKey);
                                 Assert.assertFalse(fi.isClosed());
                                 allFileInfos.add(fi);
                                 fi.release();
@@ -215,19 +206,19 @@ public class FileInfoBackingCacheTest {
         done.set(true);
 
         // ensure all threads are finished operating on cache, before checking any
-        for (Future<Set<CachedFileInfo>> f : futures) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
             f.get();
         }
 
-        for (Future<Set<CachedFileInfo>> f : futures) {
-            for (CachedFileInfo fi : f.get()) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
+            for (FileInfoBackingCache.CachedFileInfo fi : f.get()) {
                 Assert.assertTrue(fi.isClosed());
                 Assert.assertEquals(FileInfoBackingCache.DEAD_REF, fi.getRefCount());
             }
         }
     }
 
-    private void guavaEvictionListener(RemovalNotification<Long, CachedFileInfo> notification) {
+    private void guavaEvictionListener(RemovalNotification<Long, FileInfoBackingCache.CachedFileInfo> notification) {
         notification.getValue().release();
     }
 
@@ -241,18 +232,18 @@ public class FileInfoBackingCacheTest {
                     return f;
                 }, FileInfo.CURRENT_HEADER_VERSION);
 
-        Cache<Long, CachedFileInfo> guavaCache = CacheBuilder.newBuilder()
+        Cache<Long, FileInfoBackingCache.CachedFileInfo> guavaCache = CacheBuilder.newBuilder()
             .maximumSize(1)
             .removalListener(this::guavaEvictionListener)
             .build();
 
-        Iterable<Future<Set<CachedFileInfo>>> futures =
+        Iterable<Future<Set<FileInfoBackingCache.CachedFileInfo>>> futures =
             LongStream.range(0L, 2L).mapToObj(
                     (i) -> {
-                        Callable<Set<CachedFileInfo>> c = () -> {
-                            Set<CachedFileInfo> allFileInfos = new HashSet<>();
+                        Callable<Set<FileInfoBackingCache.CachedFileInfo>> c = () -> {
+                            Set<FileInfoBackingCache.CachedFileInfo> allFileInfos = new HashSet<>();
                             while (!done.get()) {
-                                CachedFileInfo fi = null;
+                                FileInfoBackingCache.CachedFileInfo fi = null;
 
                                 do {
                                     fi = guavaCache.get(
@@ -272,13 +263,13 @@ public class FileInfoBackingCacheTest {
         done.set(true);
 
         // ensure all threads are finished operating on cache, before checking any
-        for (Future<Set<CachedFileInfo>> f : futures) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
             f.get();
         }
         guavaCache.invalidateAll();
 
-        for (Future<Set<CachedFileInfo>> f : futures) {
-            for (CachedFileInfo fi : f.get()) {
+        for (Future<Set<FileInfoBackingCache.CachedFileInfo>> f : futures) {
+            for (FileInfoBackingCache.CachedFileInfo fi : f.get()) {
                 Assert.assertTrue(fi.isClosed());
                 Assert.assertEquals(FileInfoBackingCache.DEAD_REF, fi.getRefCount());
             }

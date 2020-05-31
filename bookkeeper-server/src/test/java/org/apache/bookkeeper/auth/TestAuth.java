@@ -305,7 +305,7 @@ public class TestAuth extends BookKeeperClusterTestCase {
             // bookie should have sent a negative response before
             // breaking the conneciton
             assertEquals(ProtocolVersion.ProtocolV3, protocolVersion);
-        } catch (BKException.BKNotEnoughBookiesException nebe) {
+        } catch (BKNotEnoughBookiesException nebe) {
             // With V2 we don't get the authorization error, but rather just
             // fail to write to bookies.
             assertEquals(ProtocolVersion.ProtocolV2, protocolVersion);
@@ -401,7 +401,7 @@ public class TestAuth extends BookKeeperClusterTestCase {
         try {
             connectAndWriteToBookie(clientConf, ledgerId);
             fail("Shouldn't get this far");
-        } catch (BKException.BKNotEnoughBookiesException bke) {
+        } catch (BKNotEnoughBookiesException bke) {
             // bookie won't respond, request will timeout, and then
             // we wont be able to find a replacement
         }
@@ -428,7 +428,7 @@ public class TestAuth extends BookKeeperClusterTestCase {
         try {
             connectAndWriteToBookie(clientConf, ledgerId);
             fail("Shouldn't get this far");
-        } catch (BKException.BKNotEnoughBookiesException bke) {
+        } catch (BKNotEnoughBookiesException bke) {
             // bookie won't respond, request will timeout, and then
             // we wont be able to find a replacement
         }

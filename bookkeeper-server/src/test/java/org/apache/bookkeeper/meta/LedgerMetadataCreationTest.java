@@ -21,17 +21,6 @@
 
 package org.apache.bookkeeper.meta;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.meta.zk.ZKMetadataDriverBase;
@@ -40,6 +29,13 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Random;
+import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.*;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the creation of ledger metadata.

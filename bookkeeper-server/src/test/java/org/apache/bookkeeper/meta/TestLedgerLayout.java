@@ -18,10 +18,13 @@
  */
 package org.apache.bookkeeper.meta;
 
+import org.apache.bookkeeper.meta.HierarchicalLedgerManagerFactory;
+import org.apache.bookkeeper.meta.LedgerLayout;
+import org.apache.bookkeeper.meta.LongHierarchicalLedgerManagerFactory;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-import org.junit.Test;
 
 /**
  * Unit test of {@link LedgerLayout} class itself.

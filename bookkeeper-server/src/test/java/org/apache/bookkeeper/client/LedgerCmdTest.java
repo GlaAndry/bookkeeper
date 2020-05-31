@@ -20,12 +20,6 @@
  */
 package org.apache.bookkeeper.client;
 
-import static junit.framework.TestCase.assertEquals;
-
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.bookkeeper.bookie.BookieAccessor;
 import org.apache.bookkeeper.bookie.BookieShell;
 import org.apache.bookkeeper.bookie.storage.ldb.DbLedgerStorage;
@@ -38,6 +32,13 @@ import org.apache.bookkeeper.util.LedgerIdFormatter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * A test for bookieshell ledger command.

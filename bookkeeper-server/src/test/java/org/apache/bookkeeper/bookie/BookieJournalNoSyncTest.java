@@ -20,15 +20,15 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Enumeration;
-
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.LedgerEntry;
 import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Test;
+
+import java.util.Enumeration;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the bookie journal without sync.

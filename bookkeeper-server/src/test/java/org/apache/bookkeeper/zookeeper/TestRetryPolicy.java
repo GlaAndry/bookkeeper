@@ -20,9 +20,12 @@
  */
 package org.apache.bookkeeper.zookeeper;
 
-import static org.junit.Assert.assertTrue;
-
+import org.apache.bookkeeper.zookeeper.BoundExponentialBackoffRetryPolicy;
+import org.apache.bookkeeper.zookeeper.ExponentialBackoffRetryPolicy;
+import org.apache.bookkeeper.zookeeper.RetryPolicy;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the retry policy.

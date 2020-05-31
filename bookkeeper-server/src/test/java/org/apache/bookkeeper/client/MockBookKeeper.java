@@ -19,6 +19,17 @@
 package org.apache.bookkeeper.client;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.apache.bookkeeper.client.AsyncCallback.CreateCallback;
+import org.apache.bookkeeper.client.AsyncCallback.DeleteCallback;
+import org.apache.bookkeeper.client.AsyncCallback.OpenCallback;
+import org.apache.bookkeeper.client.api.BKException.Code;
+import org.apache.bookkeeper.client.api.OpenBuilder;
+import org.apache.bookkeeper.client.api.ReadHandle;
+import org.apache.bookkeeper.client.impl.OpenBuilderBase;
+import org.apache.bookkeeper.conf.ClientConfiguration;
+import org.apache.zookeeper.ZooKeeper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,18 +42,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.bookkeeper.client.AsyncCallback.CreateCallback;
-import org.apache.bookkeeper.client.AsyncCallback.DeleteCallback;
-import org.apache.bookkeeper.client.AsyncCallback.OpenCallback;
-import org.apache.bookkeeper.client.api.BKException.Code;
-import org.apache.bookkeeper.client.api.OpenBuilder;
-import org.apache.bookkeeper.client.api.ReadHandle;
-import org.apache.bookkeeper.client.impl.OpenBuilderBase;
-import org.apache.bookkeeper.conf.ClientConfiguration;
-import org.apache.zookeeper.ZooKeeper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Mocked version of BookKeeper client that keeps all ledgers data in memory.
@@ -87,7 +86,7 @@ public class MockBookKeeper extends BookKeeper {
 
     @Override
     public void asyncCreateLedger(int ensSize, int writeQuorumSize, int ackQuorumSize, final DigestType digestType,
-            final byte[] passwd, final CreateCallback cb, final Object ctx, Map<String, byte[]> properties) {
+                                  final byte[] passwd, final CreateCallback cb, final Object ctx, Map<String, byte[]> properties) {
         if (stopped.get()) {
             cb.createComplete(BKException.Code.WriteException, null, ctx);
             return;
@@ -122,7 +121,7 @@ public class MockBookKeeper extends BookKeeper {
 
     @Override
     public LedgerHandle createLedger(int ensSize, int writeQuorumSize, int ackQuorumSize, DigestType digestType,
-            byte[] passwd) throws BKException {
+                                     byte[] passwd) throws BKException {
         checkProgrammedFail();
 
         if (stopped.get()) {
@@ -143,7 +142,7 @@ public class MockBookKeeper extends BookKeeper {
 
     @Override
     public void asyncCreateLedger(int ensSize, int qSize, DigestType digestType, byte[] passwd, CreateCallback cb,
-            Object ctx) {
+                                  Object ctx) {
         asyncCreateLedger(ensSize, qSize, qSize, digestType, passwd, cb, ctx, Collections.emptyMap());
     }
 

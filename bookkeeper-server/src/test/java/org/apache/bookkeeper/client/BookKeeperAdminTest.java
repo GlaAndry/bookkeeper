@@ -20,29 +20,7 @@
  */
 package org.apache.bookkeeper.client;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.apache.bookkeeper.util.BookKeeperConstants.AVAILABLE_NODE;
-import static org.apache.bookkeeper.util.BookKeeperConstants.READONLY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.net.InetAddresses;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
@@ -64,6 +42,19 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.apache.bookkeeper.util.BookKeeperConstants.AVAILABLE_NODE;
+import static org.apache.bookkeeper.util.BookKeeperConstants.READONLY;
+import static org.junit.Assert.*;
 
 /**
  * Test the bookkeeper admin.
@@ -248,7 +239,7 @@ public class BookKeeperAdminTest extends BookKeeperClusterTestCase {
          * now it should be possible to create ledger and delete the same
          */
         BookKeeper bk = new BookKeeper(new ClientConfiguration(newConfig));
-        LedgerHandle lh = bk.createLedger(numOfBookies, numOfBookies, numOfBookies, BookKeeper.DigestType.MAC,
+        LedgerHandle lh = bk.createLedger(numOfBookies, numOfBookies, numOfBookies, DigestType.MAC,
                 new byte[0]);
         bk.deleteLedger(lh.ledgerId);
         bk.close();
@@ -316,7 +307,7 @@ public class BookKeeperAdminTest extends BookKeeperClusterTestCase {
          */
         BookKeeper bk = new BookKeeper(new ClientConfiguration(newConfig));
         long ledgerId = 23456789L;
-        LedgerHandle lh = bk.createLedgerAdv(ledgerId, 1, 1, 1, BookKeeper.DigestType.MAC, new byte[0], null);
+        LedgerHandle lh = bk.createLedgerAdv(ledgerId, 1, 1, 1, DigestType.MAC, new byte[0], null);
         lh.close();
 
         /*
@@ -368,7 +359,7 @@ public class BookKeeperAdminTest extends BookKeeperClusterTestCase {
         /*
          * ledger should not be deleted.
          */
-        lh = bk.openLedgerNoRecovery(ledgerId, BookKeeper.DigestType.MAC, new byte[0]);
+        lh = bk.openLedgerNoRecovery(ledgerId, DigestType.MAC, new byte[0]);
         lh.close();
         bk.close();
 
@@ -406,7 +397,7 @@ public class BookKeeperAdminTest extends BookKeeperClusterTestCase {
         LedgerHandle lh;
         int numOfLedgers = 5;
         for (int i = 0; i < numOfLedgers; i++) {
-            lh = bk.createLedger(numberOfBookies, numberOfBookies, numberOfBookies, BookKeeper.DigestType.MAC,
+            lh = bk.createLedger(numberOfBookies, numberOfBookies, numberOfBookies, DigestType.MAC,
                     new byte[0]);
             lh.close();
         }

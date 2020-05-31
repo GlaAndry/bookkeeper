@@ -20,19 +20,15 @@
  */
 package org.apache.bookkeeper.bookie;
 
+import org.apache.bookkeeper.client.api.*;
+import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
+import org.junit.Test;
+
+import java.util.EnumSet;
+
 import static com.google.common.base.Charsets.UTF_8;
 import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
 import static org.junit.Assert.assertEquals;
-
-import java.util.EnumSet;
-import org.apache.bookkeeper.client.api.DigestType;
-import org.apache.bookkeeper.client.api.LedgerEntries;
-import org.apache.bookkeeper.client.api.LedgerEntry;
-import org.apache.bookkeeper.client.api.ReadHandle;
-import org.apache.bookkeeper.client.api.WriteFlag;
-import org.apache.bookkeeper.client.api.WriteHandle;
-import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
-import org.junit.Test;
 
 /**
  * Test the bookie journal without sync, driven by client with
@@ -72,7 +68,7 @@ public class BookieDeferredSyncTest extends BookKeeperClusterTestCase {
 
             try (LedgerEntries entries = readLh.read(0, n - 1)) {
                 for (int i = 0; i < n; i++) {
-                    org.apache.bookkeeper.client.api.LedgerEntry entry = entries.getEntry(i);
+                    LedgerEntry entry = entries.getEntry(i);
                     assertEquals("entry-" + i, new String(entry.getEntryBytes()));
                 }
             }

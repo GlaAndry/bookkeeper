@@ -20,27 +20,10 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.apache.bookkeeper.bookie.FileInfoBackingCache.CachedFileInfo;
+import org.apache.bookkeeper.bookie.*;
 import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.common.util.Watcher;
 import org.apache.bookkeeper.conf.ServerConfiguration;
@@ -52,6 +35,18 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for IndexPersistenceMgr.
@@ -163,7 +158,7 @@ public class IndexPersistenceMgrTest {
             assertEquals(0, indexPersistenceMgr.writeFileInfoCache.size());
             assertEquals(0, indexPersistenceMgr.readFileInfoCache.size());
 
-            CachedFileInfo writeFileInfo = indexPersistenceMgr.getFileInfo(lid, masterKey);
+            FileInfoBackingCache.CachedFileInfo writeFileInfo = indexPersistenceMgr.getFileInfo(lid, masterKey);
             assertEquals(2, writeFileInfo.getRefCount());
             assertEquals(1, indexPersistenceMgr.writeFileInfoCache.size());
             assertEquals(0, indexPersistenceMgr.readFileInfoCache.size());
@@ -182,13 +177,13 @@ public class IndexPersistenceMgrTest {
         try {
             indexPersistenceMgr = createIndexPersistenceManager(1);
 
-            CachedFileInfo writeFileInfo = indexPersistenceMgr.getFileInfo(lid, masterKey);
+            FileInfoBackingCache.CachedFileInfo writeFileInfo = indexPersistenceMgr.getFileInfo(lid, masterKey);
             assertEquals(2, writeFileInfo.getRefCount());
             assertEquals(1, indexPersistenceMgr.writeFileInfoCache.size());
             assertEquals(0, indexPersistenceMgr.readFileInfoCache.size());
             writeFileInfo.release();
 
-            CachedFileInfo readFileInfo = indexPersistenceMgr.getFileInfo(lid, null);
+            FileInfoBackingCache.CachedFileInfo readFileInfo = indexPersistenceMgr.getFileInfo(lid, null);
             assertEquals(3, readFileInfo.getRefCount());
             assertEquals(1, indexPersistenceMgr.writeFileInfoCache.size());
             assertEquals(1, indexPersistenceMgr.readFileInfoCache.size());
@@ -208,7 +203,7 @@ public class IndexPersistenceMgrTest {
         try {
             indexPersistenceMgr = createIndexPersistenceManager(1);
             for (int i = 0; i < 3; i++) {
-                CachedFileInfo fileInfo = indexPersistenceMgr.getFileInfo(lid + i, masterKey);
+                FileInfoBackingCache.CachedFileInfo fileInfo = indexPersistenceMgr.getFileInfo(lid + i, masterKey);
                 // We need to make sure index file is created, otherwise the test case can be flaky
                 fileInfo.checkOpen(true);
                 fileInfo.release();
@@ -228,7 +223,7 @@ public class IndexPersistenceMgrTest {
             assertEquals(1, indexPersistenceMgr.writeFileInfoCache.size());
             assertEquals(2, indexPersistenceMgr.readFileInfoCache.size());
 
-            CachedFileInfo fileInfo = indexPersistenceMgr.writeFileInfoCache.asMap().get(lid);
+            FileInfoBackingCache.CachedFileInfo fileInfo = indexPersistenceMgr.writeFileInfoCache.asMap().get(lid);
             assertNotNull(fileInfo);
             assertEquals(2, fileInfo.getRefCount());
             fileInfo = indexPersistenceMgr.writeFileInfoCache.asMap().get(lid + 1);
@@ -293,7 +288,7 @@ public class IndexPersistenceMgrTest {
             indexPersistenceMgr.getFileInfo(3L, masterKey);
             indexPersistenceMgr.getFileInfo(4L, masterKey);
 
-            CachedFileInfo fi = indexPersistenceMgr.getFileInfo(1L, masterKey);
+            FileInfoBackingCache.CachedFileInfo fi = indexPersistenceMgr.getFileInfo(1L, masterKey);
 
             // trigger eviction
             indexPersistenceMgr.getFileInfo(2L, masterKey);
@@ -348,7 +343,7 @@ public class IndexPersistenceMgrTest {
                 BookKeeper.DigestType.toProtoDigestType(digestType), UnpooledByteBufAllocator.DEFAULT,
                 getUseV2WireProtocol);
 
-        CachedFileInfo fileInfo = indexPersistenceMgr.getFileInfo(ledgerId, masterKey);
+        FileInfoBackingCache.CachedFileInfo fileInfo = indexPersistenceMgr.getFileInfo(ledgerId, masterKey);
         fileInfo.readHeader();
         assertEquals("ExplicitLac should be null", null, fileInfo.getExplicitLac());
         assertEquals("Header Version should match with precreated fileinfos headerversion", headerVersion,

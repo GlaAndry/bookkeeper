@@ -17,20 +17,10 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.bookkeeper.client.BKException;
+import org.apache.bookkeeper.client.BookKeeper;
+import org.apache.bookkeeper.client.DefaultEnsemblePlacementPolicy;
+import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Before;
@@ -38,6 +28,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * Testing a generic ensemble placement policy.
@@ -70,8 +65,8 @@ public class GenericEnsemblePlacementPolicyTest extends BookKeeperClusterTestCas
 
         @Override
         public PlacementResult<BookieSocketAddress> replaceBookie(int ensembleSize, int writeQuorumSize,
-            int ackQuorumSize, Map<String, byte[]> customMetadata, List<BookieSocketAddress> currentEnsemble,
-            BookieSocketAddress bookieToReplace, Set<BookieSocketAddress> excludeBookies)
+                                                                  int ackQuorumSize, Map<String, byte[]> customMetadata, List<BookieSocketAddress> currentEnsemble,
+                                                                  BookieSocketAddress bookieToReplace, Set<BookieSocketAddress> excludeBookies)
             throws BKException.BKNotEnoughBookiesException {
             new Exception("replaceBookie " + ensembleSize + "," + customMetadata).printStackTrace();
             assertNotNull(customMetadata);
@@ -82,7 +77,7 @@ public class GenericEnsemblePlacementPolicyTest extends BookKeeperClusterTestCas
 
         @Override
         public PlacementResult<List<BookieSocketAddress>> newEnsemble(int ensembleSize, int quorumSize,
-            int ackQuorumSize, Map<String, byte[]> customMetadata, Set<BookieSocketAddress> excludeBookies)
+                                                                      int ackQuorumSize, Map<String, byte[]> customMetadata, Set<BookieSocketAddress> excludeBookies)
             throws BKException.BKNotEnoughBookiesException {
             assertNotNull(customMetadata);
             customMetadataOnNewEnsembleStack.add(customMetadata);

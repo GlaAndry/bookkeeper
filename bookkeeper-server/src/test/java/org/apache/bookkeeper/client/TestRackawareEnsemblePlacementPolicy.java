@@ -17,38 +17,15 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS;
-import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicyImpl.shuffleWithMask;
-import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
-import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.HashedWheelTimer;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 import org.apache.bookkeeper.client.BKException.BKNotEnoughBookiesException;
 import org.apache.bookkeeper.client.BookieInfoReader.BookieInfo;
 import org.apache.bookkeeper.client.EnsemblePlacementPolicy.PlacementPolicyAdherence;
 import org.apache.bookkeeper.client.ITopologyAwareEnsemblePlacementPolicy.Ensemble;
-import org.apache.bookkeeper.client.TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints;
-import org.apache.bookkeeper.client.TopologyAwareEnsemblePlacementPolicy.TruePredicate;
 import org.apache.bookkeeper.conf.ClientConfiguration;
-import org.apache.bookkeeper.net.BookieNode;
-import org.apache.bookkeeper.net.BookieSocketAddress;
-import org.apache.bookkeeper.net.DNSToSwitchMapping;
-import org.apache.bookkeeper.net.NetworkTopology;
-import org.apache.bookkeeper.net.Node;
+import org.apache.bookkeeper.net.*;
 import org.apache.bookkeeper.stats.Gauge;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.test.TestStatsProvider;
@@ -58,6 +35,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS;
+import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
+import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
 
 /**
  * Test the rackaware ensemble placement policy.
@@ -71,7 +56,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
     DistributionSchedule.WriteSet writeSet = DistributionSchedule.NULL_WRITE_SET;
     ClientConfiguration conf = new ClientConfiguration();
     BookieSocketAddress addr1, addr2, addr3, addr4;
-    io.netty.util.HashedWheelTimer timer;
+    HashedWheelTimer timer;
     final int minNumRacksPerWriteQuorumConfValue = 2;
 
     @Override
@@ -735,7 +720,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
 
         try {
             ensemble = repp.newEnsemble(3, 2, 2, new HashSet<>(),
-                    EnsembleForReplacementWithNoConstraints.INSTANCE, TruePredicate.INSTANCE).getResult();
+                    TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE).getResult();
             fail("Should get not enough bookies exception since there is only one rack.");
         } catch (BKNotEnoughBookiesException bnebe) {
         }
@@ -797,7 +782,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
 
         try {
             repp.newEnsemble(8, 4, 4, new HashSet<>(defaultRackBookiesList),
-                    EnsembleForReplacementWithNoConstraints.INSTANCE, TruePredicate.INSTANCE);
+                    TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE);
             fail("Should get not enough bookies exception since there are only 3 non-default racks"
                     + " and defaultrack bookies are excluded");
         } catch (BKNotEnoughBookiesException bnebe) {
@@ -823,8 +808,8 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         assertEquals(PlacementPolicyAdherence.MEETS_STRICT, isEnsembleAdheringToPlacementPolicy);
 
         ensembleResponse = repp.newEnsemble(ensembleSize, writeQuorumSize, ackQuorumSize,
-                new HashSet<>(defaultRackBookiesList), EnsembleForReplacementWithNoConstraints.INSTANCE,
-                TruePredicate.INSTANCE);
+                new HashSet<>(defaultRackBookiesList), TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE,
+                TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE);
         ensemble = ensembleResponse.getResult();
         isEnsembleAdheringToPlacementPolicy = ensembleResponse.isAdheringToPolicy();
         assertEquals("Number of writeQuorum sets covered", ensembleSize,
@@ -885,7 +870,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
             assertEquals(PlacementPolicyAdherence.MEETS_STRICT, isEnsembleAdheringToPlacementPolicy);
 
             ensembleResponse = repp.newEnsemble(ensembleSize, writeQuorumSize, ackQuorumSize, new HashSet<>(),
-                    EnsembleForReplacementWithNoConstraints.INSTANCE, TruePredicate.INSTANCE);
+                    TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE);
             ensemble = ensembleResponse.getResult();
             isEnsembleAdheringToPlacementPolicy = ensembleResponse.isAdheringToPolicy();
             assertEquals("Number of writeQuorum sets covered", ensembleSize,
@@ -1095,14 +1080,14 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
                 new HashSet<BookieSocketAddress>());
 
         String rack = bookieRackMap.get(bookieSocketAddresses.get(0));
-        BookieNode bookieNode = repp.selectFromNetworkLocation(rack, new HashSet<Node>(), TruePredicate.INSTANCE,
-                EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+        BookieNode bookieNode = repp.selectFromNetworkLocation(rack, new HashSet<Node>(), TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
         String recRack = bookieNode.getNetworkLocation();
         assertEquals("Rack of node", rack, recRack);
 
         try {
-            repp.selectFromNetworkLocation(nonExistingRackLocation, new HashSet<Node>(), TruePredicate.INSTANCE,
-                    EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+            repp.selectFromNetworkLocation(nonExistingRackLocation, new HashSet<Node>(), TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                    TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
             fail("Should get not enough bookies exception since there are no bookies in this rack");
         } catch (BKNotEnoughBookiesException bnebe) {
             // this is expected
@@ -1110,8 +1095,8 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
 
         // it should not fail, since fallback is set to true and it should pick
         // some random one
-        repp.selectFromNetworkLocation(nonExistingRackLocation, new HashSet<Node>(), TruePredicate.INSTANCE,
-                EnsembleForReplacementWithNoConstraints.INSTANCE, true);
+        repp.selectFromNetworkLocation(nonExistingRackLocation, new HashSet<Node>(), TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, true);
 
         Set<BookieSocketAddress> excludeBookiesOfRackR0 = new HashSet<BookieSocketAddress>();
         for (int i = 0; i < numOfBookiesPerRack; i++) {
@@ -1121,7 +1106,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         Set<Node> excludeBookieNodesOfRackR0 = repp.convertBookiesToNodes(excludeBookiesOfRackR0);
         try {
             repp.selectFromNetworkLocation(bookieRackMap.get(bookieSocketAddresses.get(0)), excludeBookieNodesOfRackR0,
-                    TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+                    TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
             fail("Should get not enough bookies exception since all the bookies in r0 are added to the exclusion list");
         } catch (BKNotEnoughBookiesException bnebe) {
             // this is expected
@@ -1129,7 +1114,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
 
         // not expected to get exception since fallback is set to true
         bookieNode = repp.selectFromNetworkLocation(bookieRackMap.get(bookieSocketAddresses.get(0)),
-                excludeBookieNodesOfRackR0, TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE,
+                excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE,
                 true);
         assertTrue("BookieNode should not be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[1].equals(bookieNode.getNetworkLocation())
@@ -1183,8 +1168,8 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         excludeRacksRackR1AndR2.add(rackLocationNames[2]);
 
         try {
-            repp.selectFromNetworkLocation(excludeRacksRackR1AndR2, excludeBookieNodesOfRackR0, TruePredicate.INSTANCE,
-                    EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+            repp.selectFromNetworkLocation(excludeRacksRackR1AndR2, excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                    TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
             fail("Should get not enough bookies exception racks R1 and R2 are"
                     + "excluded and all the bookies in r0 are added to the exclusion list");
         } catch (BKNotEnoughBookiesException bnebe) {
@@ -1192,13 +1177,13 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         }
 
         BookieNode bookieNode = repp.selectFromNetworkLocation(excludeRacksRackR1AndR2, new HashSet<Node>(),
-                TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+                TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
         assertTrue("BookieNode should be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[0].equals(bookieNode.getNetworkLocation()));
 
         // not expected to get exception since fallback is set to true
         bookieNode = repp.selectFromNetworkLocation(excludeRacksRackR1AndR2, excludeBookieNodesOfRackR0,
-                TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE, true);
+                TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, true);
         assertTrue("BookieNode should not be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[1].equals(bookieNode.getNetworkLocation())
                         || rackLocationNames[2].equals(bookieNode.getNetworkLocation()));
@@ -1254,7 +1239,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         try {
             repp.selectFromNetworkLocation(nonExistingRackLocation, excludeRacksRackR1AndR2,
                     excludeBookieNodesOfRackR0,
-                    TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+                    TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
             fail("Should get not enough bookies exception racks R1 and R2 are excluded and all the bookies in"
                     + "r0 are added to the exclusion list");
         } catch (BKNotEnoughBookiesException bnebe) {
@@ -1262,19 +1247,19 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         }
 
         BookieNode bookieNode = repp.selectFromNetworkLocation(rackLocationNames[0], excludeRacksRackR1AndR2,
-                new HashSet<Node>(), TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+                new HashSet<Node>(), TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
         assertTrue("BookieNode should be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[0].equals(bookieNode.getNetworkLocation()));
 
         bookieNode = repp.selectFromNetworkLocation(rackLocationNames[0], new HashSet<String>(),
-                excludeBookieNodesOfRackR0, TruePredicate.INSTANCE,
-                EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+                excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
         assertTrue("BookieNode should not be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[1].equals(bookieNode.getNetworkLocation())
                         || rackLocationNames[2].equals(bookieNode.getNetworkLocation()));
 
         bookieNode = repp.selectFromNetworkLocation(nonExistingRackLocation, excludeRacksRackR1AndR2,
-                excludeBookieNodesOfRackR0, TruePredicate.INSTANCE, EnsembleForReplacementWithNoConstraints.INSTANCE,
+                excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE,
                 true);
         assertTrue("BookieNode should not be from Rack /r0" + bookieNode.getNetworkLocation(),
                 rackLocationNames[1].equals(bookieNode.getNetworkLocation())
@@ -1334,8 +1319,8 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         excludeRackR1.add(rackLocationNames[1]);
 
         BookieNode nodeSelected;
-        nodeSelected = repp.selectFromNetworkLocation(excludeRackR1, excludeBookieNodesOfRackR0, TruePredicate.INSTANCE,
-                EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+        nodeSelected = repp.selectFromNetworkLocation(excludeRackR1, excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
+                TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
         assertEquals("BookieNode should be from Rack2", rackLocationNames[2], nodeSelected.getNetworkLocation());
 
         try {
@@ -1345,7 +1330,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
              */
             repp.selectFromNetworkLocation(excludeRackR1, excludeBookieNodesOfRackR0, (candidate, chosenBookies) -> {
                 return false;
-            }, EnsembleForReplacementWithNoConstraints.INSTANCE, false);
+            }, TopologyAwareEnsemblePlacementPolicy.EnsembleForReplacementWithNoConstraints.INSTANCE, false);
             fail("Should get not enough bookies exception since we are using false predicate");
         } catch (BKNotEnoughBookiesException bnebe) {
             // this is expected
@@ -1355,7 +1340,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
             /*
              * Using ensemble which rejects all the nodes.
              */
-            repp.selectFromNetworkLocation(excludeRackR1, excludeBookieNodesOfRackR0, TruePredicate.INSTANCE,
+            repp.selectFromNetworkLocation(excludeRackR1, excludeBookieNodesOfRackR0, TopologyAwareEnsemblePlacementPolicy.TruePredicate.INSTANCE,
                     new Ensemble<BookieNode>() {
 
                         @Override
@@ -1883,7 +1868,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
     }
 
     static int getNumCoveredWriteQuorums(List<BookieSocketAddress> ensemble, int writeQuorumSize,
-            int minNumRacksPerWriteQuorumConfValue) throws Exception {
+                                         int minNumRacksPerWriteQuorumConfValue) throws Exception {
         int ensembleSize = ensemble.size();
         int numCoveredWriteQuorums = 0;
         for (int i = 0; i < ensembleSize; i++) {
@@ -1986,7 +1971,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         for (int i = 0; i < 100; i++) {
             DistributionSchedule.WriteSet w = writeSetFromValues(
                     1, 2, 3 & mask, 4 & mask, 5 & mask, 6);
-            shuffleWithMask(w, mask, maskBits);
+            TopologyAwareEnsemblePlacementPolicy.shuffleWithMask(w, mask, maskBits);
             assertEquals(w.get(0), 1);
             assertEquals(w.get(1), 2);
             assertEquals(w.get(5), 6);
@@ -2019,7 +2004,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         for (int i = 0; i < 100; i++) {
             DistributionSchedule.WriteSet w = writeSetFromValues(
                     1 & mask, 2 & mask, 3 & mask, 4, 5, 6);
-            shuffleWithMask(w, mask, maskBits);
+            TopologyAwareEnsemblePlacementPolicy.shuffleWithMask(w, mask, maskBits);
             assertEquals(w.get(3), 4);
             assertEquals(w.get(4), 5);
             assertEquals(w.get(5), 6);
@@ -2052,7 +2037,7 @@ public class TestRackawareEnsemblePlacementPolicy extends TestCase {
         for (int i = 0; i < 100; i++) {
             DistributionSchedule.WriteSet w = writeSetFromValues(
                     1, 2, 3, 4 & mask, 5 & mask, 6 & mask);
-            shuffleWithMask(w, mask, maskBits);
+            TopologyAwareEnsemblePlacementPolicy.shuffleWithMask(w, mask, maskBits);
             assertEquals(w.get(0), 1);
             assertEquals(w.get(1), 2);
             assertEquals(w.get(2), 3);

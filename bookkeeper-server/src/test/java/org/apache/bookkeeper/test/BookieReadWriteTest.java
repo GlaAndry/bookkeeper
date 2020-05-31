@@ -20,23 +20,6 @@
  */
 package org.apache.bookkeeper.test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
 import org.apache.bookkeeper.client.AsyncCallback.CloseCallback;
 import org.apache.bookkeeper.client.AsyncCallback.ReadCallback;
@@ -56,6 +39,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.*;
 
 /**
  * This test tests read and write, synchronous and asynchronous, strings and
@@ -790,7 +786,7 @@ public class BookieReadWriteTest extends BookKeeperClusterTestCase
 
                 lhOpen.addEntry(entry.array());
                 fail("Should have thrown an exception here");
-            } catch (BKException.BKIllegalOpException bkioe) {
+            } catch (BKIllegalOpException bkioe) {
                 // this is the correct response
             } catch (Exception ex) {
                 LOG.error("Unexpected exception", ex);
@@ -873,7 +869,7 @@ public class BookieReadWriteTest extends BookKeeperClusterTestCase
             try {
                 lhOpen.addEntry(entry.array());
                 fail("Should have thrown an exception here");
-            } catch (BKException.BKIllegalOpException bkioe) {
+            } catch (BKIllegalOpException bkioe) {
                 // this is the correct response
             } catch (Exception ex) {
                 LOG.error("Unexpected exception", ex);

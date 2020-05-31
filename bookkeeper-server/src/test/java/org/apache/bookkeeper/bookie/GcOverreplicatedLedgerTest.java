@@ -22,15 +22,10 @@
 package org.apache.bookkeeper.bookie;
 
 import com.google.common.collect.Lists;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.concurrent.TimeUnit;
+import org.apache.bookkeeper.bookie.CompactableLedgerStorage;
+import org.apache.bookkeeper.bookie.GarbageCollector;
 import org.apache.bookkeeper.bookie.GarbageCollector.GarbageCleaner;
+import org.apache.bookkeeper.bookie.ScanAndCompareGarbageCollector;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
@@ -51,6 +46,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test GC-overreplicated ledger.

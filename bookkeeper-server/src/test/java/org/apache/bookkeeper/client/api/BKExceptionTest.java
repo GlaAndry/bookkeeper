@@ -15,13 +15,13 @@
  */
 package org.apache.bookkeeper.client.api;
 
-import static org.apache.bookkeeper.client.api.BKException.Code.UnexpectedConditionException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.bookkeeper.client.api.BKException;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
-import org.junit.Test;
+
+import static org.apache.bookkeeper.client.api.BKException.Code.UnexpectedConditionException;
+import static org.junit.Assert.*;
 
 /**
  * Tests for BKException methods.

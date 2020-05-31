@@ -20,24 +20,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.RackawareEnsemblePlacementPolicy.REPP_DNS_RESOLVER_CLASS;
-import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import io.netty.util.HashedWheelTimer;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.bookkeeper.client.BKException.BKNotEnoughBookiesException;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.net.BookieSocketAddress;
@@ -52,6 +36,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
+import static org.junit.Assert.*;
 
 /**
  * In this testsuite, ScriptBasedMapping is used as DNS_RESOLVER_CLASS for
@@ -76,7 +66,7 @@ public class TestRackawareEnsemblePlacementPolicyUsingScript {
 
     @Before
     public void setUp() throws Exception {
-        conf.setProperty(REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
+        conf.setProperty(RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
         conf.setProperty(CommonConfigurationKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
                 "src/test/resources/networkmappingscript.sh");
         timer = new HashedWheelTimer(
@@ -364,7 +354,7 @@ public class TestRackawareEnsemblePlacementPolicyUsingScript {
         repp.uninitalize();
 
         ClientConfiguration newConf = new ClientConfiguration();
-        newConf.setProperty(REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
+        newConf.setProperty(RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
         newConf.setProperty(CommonConfigurationKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY, "");
         newConf.setEnforceMinNumRacksPerWriteQuorum(false);
         timer = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("TestTimer-%d").build(),
@@ -409,7 +399,7 @@ public class TestRackawareEnsemblePlacementPolicyUsingScript {
         repp.uninitalize();
 
         ClientConfiguration newConf = new ClientConfiguration();
-        newConf.setProperty(REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
+        newConf.setProperty(RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS, ScriptBasedMapping.class.getName());
         /*
          * this script, exits with error value if no argument is passed to it.
          * So mapping.validateConf will fail.

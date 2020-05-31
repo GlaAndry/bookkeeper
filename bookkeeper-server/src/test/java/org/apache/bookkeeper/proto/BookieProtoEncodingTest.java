@@ -18,13 +18,6 @@
  */
 package org.apache.bookkeeper.proto;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.ExtensionRegistry;
@@ -32,13 +25,11 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
-import java.util.List;
-import org.apache.bookkeeper.proto.BookieProtoEncoding.RequestEnDeCoderPreV3;
-import org.apache.bookkeeper.proto.BookieProtoEncoding.RequestEnDecoderV3;
-import org.apache.bookkeeper.proto.BookieProtoEncoding.ResponseDecoder;
-import org.apache.bookkeeper.proto.BookieProtoEncoding.ResponseEnDeCoderPreV3;
-import org.apache.bookkeeper.proto.BookieProtoEncoding.ResponseEnDecoderV3;
+import org.apache.bookkeeper.proto.BookieProtoEncoding;
+import org.apache.bookkeeper.proto.BookieProtoEncoding.*;
+import org.apache.bookkeeper.proto.BookieProtocol;
 import org.apache.bookkeeper.proto.BookieProtocol.AddResponse;
+import org.apache.bookkeeper.proto.BookkeeperProtocol;
 import org.apache.bookkeeper.proto.BookkeeperProtocol.AddRequest.Flag;
 import org.apache.bookkeeper.proto.BookkeeperProtocol.BKPacketHeader;
 import org.apache.bookkeeper.proto.BookkeeperProtocol.OperationType;
@@ -46,6 +37,15 @@ import org.apache.bookkeeper.proto.BookkeeperProtocol.ProtocolVersion;
 import org.apache.bookkeeper.proto.BookkeeperProtocol.StatusCode;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit test {@link BookieProtoEncoding}.

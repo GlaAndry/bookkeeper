@@ -21,9 +21,6 @@
 package org.apache.bookkeeper.test;
 
 import com.google.common.io.Files;
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bookkeeper.meta.LongHierarchicalLedgerManagerFactory;
 import org.apache.bookkeeper.zookeeper.ZooKeeperClient;
@@ -32,6 +29,10 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.test.QuorumUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides multi node zookeeper cluster.

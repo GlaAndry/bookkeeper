@@ -24,12 +24,12 @@ package org.apache.bookkeeper.bookie;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.IOException;
-
+import org.apache.bookkeeper.bookie.*;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.meta.LedgerManager;
 import org.apache.bookkeeper.stats.StatsLogger;
+
+import java.io.IOException;
 
 /**
  * Strictly for testing.
@@ -49,8 +49,8 @@ public class SlowInterleavedLedgerStorage extends InterleavedLedgerStorage {
         public volatile long addDelay = 0;
         public volatile long flushDelay = 0;
 
-        public SlowEntryLogger(ServerConfiguration conf, LedgerDirsManager ledgerDirsManager, EntryLogListener listener,
-                StatsLogger statsLogger) throws IOException {
+        public SlowEntryLogger(ServerConfiguration conf, LedgerDirsManager ledgerDirsManager, EntryLogger.EntryLogListener listener,
+                               StatsLogger statsLogger) throws IOException {
             super(conf, ledgerDirsManager, listener, statsLogger, UnpooledByteBufAllocator.DEFAULT);
         }
 

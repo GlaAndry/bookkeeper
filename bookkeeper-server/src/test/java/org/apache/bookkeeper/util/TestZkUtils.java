@@ -20,10 +20,7 @@
  */
 package org.apache.bookkeeper.util;
 
-import java.io.IOException;
-
 import junit.framework.TestCase;
-
 import org.apache.bookkeeper.test.ZooKeeperUtil;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -34,6 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Test ZooKeeper utilities.

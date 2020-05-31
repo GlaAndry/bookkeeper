@@ -19,24 +19,22 @@
 
 package org.apache.bookkeeper.client.api;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bookkeeper.client.api.WriteHandle;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import static com.google.common.base.Charsets.UTF_8;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import java.nio.ByteBuffer;
-import java.util.concurrent.LinkedBlockingQueue;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test for the default methods in {@link WriteHandle}.

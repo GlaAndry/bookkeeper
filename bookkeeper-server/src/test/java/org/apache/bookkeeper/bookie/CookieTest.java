@@ -21,22 +21,10 @@
 
 package org.apache.bookkeeper.bookie;
 
-import static org.apache.bookkeeper.bookie.UpgradeTest.newV1JournalDirectory;
-import static org.apache.bookkeeper.bookie.UpgradeTest.newV1LedgerDirectory;
-import static org.apache.bookkeeper.bookie.UpgradeTest.newV2JournalDirectory;
-import static org.apache.bookkeeper.bookie.UpgradeTest.newV2LedgerDirectory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Sets;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieException.InvalidCookieException;
+import org.apache.bookkeeper.bookie.Cookie;
 import org.apache.bookkeeper.client.BookKeeperAdmin;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.conf.TestBKConfiguration;
@@ -53,6 +41,16 @@ import org.apache.bookkeeper.versioning.Version;
 import org.apache.bookkeeper.versioning.Versioned;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.apache.bookkeeper.bookie.UpgradeTest.*;
+import static org.junit.Assert.*;
 
 /**
  * Test cookies.
@@ -145,7 +143,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b = new Bookie(conf2);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -174,7 +172,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b2 = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
 
@@ -182,7 +180,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b2 = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
 
@@ -217,7 +215,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -247,7 +245,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -275,7 +273,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b2 = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
 
@@ -319,7 +317,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
 
         try {
             b = new Bookie(conf);
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             fail("Should have been able to start the bookie");
         }
 
@@ -352,7 +350,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Should not have been able to start the bookie");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behavior
         }
 
@@ -363,7 +361,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Should not have been able to start the bookie");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behavior
         }
     }
@@ -402,7 +400,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behavior
         }
 
@@ -418,7 +416,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behavior
         }
     }
@@ -445,7 +443,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b2 = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -469,7 +467,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -499,7 +497,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
         }
     }
@@ -529,7 +527,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             new Bookie(bookieConf);
             fail("Bookie should not start with previous instance id.");
-        } catch (BookieException.InvalidCookieException e) {
+        } catch (InvalidCookieException e) {
             assertTrue(
                     "Bookie startup should fail because of invalid instance id",
                     e.getMessage().contains("instanceId"));
@@ -560,7 +558,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
             assertTrue("wrong exception", ice.getCause().getMessage().contains("upgrade needed"));
         }
@@ -585,7 +583,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
         try {
             Bookie b = new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
             assertTrue("wrong exception", ice.getCause().getMessage().contains("upgrade needed"));
         }
@@ -692,7 +690,7 @@ public class CookieTest extends BookKeeperClusterTestCase {
             conf.setUseHostNameAsBookieID(true);
             new Bookie(conf);
             fail("Shouldn't have been able to start");
-        } catch (BookieException.InvalidCookieException ice) {
+        } catch (InvalidCookieException ice) {
             // correct behaviour
             assertTrue("wrong exception",
                     ice.getCause().getMessage().contains("upgrade needed"));

@@ -18,33 +18,30 @@
  */
 package org.apache.bookkeeper.meta;
 
-import static org.apache.bookkeeper.meta.MetadataDrivers.BK_METADATA_BOOKIE_DRIVERS_PROPERTY;
-import static org.apache.bookkeeper.meta.MetadataDrivers.BK_METADATA_CLIENT_DRIVERS_PROPERTY;
-import static org.apache.bookkeeper.meta.MetadataDrivers.ZK_BOOKIE_DRIVER_CLASS;
-import static org.apache.bookkeeper.meta.MetadataDrivers.ZK_CLIENT_DRIVER_CLASS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.Maps;
-import java.net.URI;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.discover.RegistrationClient;
 import org.apache.bookkeeper.discover.RegistrationManager;
 import org.apache.bookkeeper.discover.RegistrationManager.RegistrationListener;
-import org.apache.bookkeeper.meta.MetadataDrivers.MetadataBookieDriverInfo;
-import org.apache.bookkeeper.meta.MetadataDrivers.MetadataClientDriverInfo;
+import org.apache.bookkeeper.meta.*;
 import org.apache.bookkeeper.meta.exceptions.MetadataException;
 import org.apache.bookkeeper.stats.StatsLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.apache.bookkeeper.meta.MetadataDrivers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit test of {@link MetadataDrivers}.
@@ -151,8 +148,8 @@ public class MetadataDriversTest {
 
     }
 
-    private Map<String, MetadataClientDriverInfo> savedClientDrivers;
-    private Map<String, MetadataBookieDriverInfo> savedBookieDrivers;
+    private Map<String, MetadataDrivers.MetadataClientDriverInfo> savedClientDrivers;
+    private Map<String, MetadataDrivers.MetadataBookieDriverInfo> savedBookieDrivers;
 
     @Before
     public void setup() {

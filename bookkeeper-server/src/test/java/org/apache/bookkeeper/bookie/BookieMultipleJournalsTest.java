@@ -20,19 +20,19 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.LedgerEntry;
 import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the bookie with multiple journals.
@@ -44,7 +44,7 @@ public class BookieMultipleJournalsTest extends BookKeeperClusterTestCase {
     }
 
     protected ServerConfiguration newServerConfiguration(int port, File journalDir,
-            File[] ledgerDirs) {
+                                                         File[] ledgerDirs) {
         ServerConfiguration conf = super.newServerConfiguration(port, journalDir, ledgerDirs);
 
         // Use 4 journals

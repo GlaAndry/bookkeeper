@@ -21,13 +21,9 @@
 package org.apache.bookkeeper.client;
 
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.bookkeeper.client.BKException;
+import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.common.concurrent.FutureUtils;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.discover.RegistrationClient.RegistrationListener;
@@ -36,6 +32,10 @@ import org.apache.bookkeeper.proto.BookieClient;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.test.TestStatsProvider;
 import org.apache.zookeeper.ZooKeeper;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 /**
  * Test BookKeeperClient which allows access to members we don't
@@ -86,7 +86,7 @@ public class BookKeeperTestClient extends BookKeeper {
      * in the other set before completing.
      */
     private Future<?> waitForBookieInSet(BookieSocketAddress b,
-                                                       boolean writable) throws Exception {
+                                         boolean writable) throws Exception {
         log.info("Wait for {} to become {}",
                  b, writable ? "writable" : "readonly");
 

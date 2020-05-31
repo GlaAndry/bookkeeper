@@ -17,11 +17,13 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
+import org.apache.bookkeeper.bookie.BookieCriticalThread;
+import org.apache.bookkeeper.bookie.BookieThread;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Testing bookie thread cases.

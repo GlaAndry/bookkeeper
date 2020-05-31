@@ -20,15 +20,6 @@
  */
 package org.apache.bookkeeper.meta;
 
-import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.meta.zk.ZKMetadataDriverBase;
@@ -36,12 +27,19 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.apache.bookkeeper.util.ZkUtils;
 import org.apache.bookkeeper.zookeeper.ZooKeeperClient;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+
+import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
+import static org.junit.Assert.*;
 
 /**
  * Test the ledger manager.
@@ -63,7 +61,7 @@ public class TestLedgerManager extends BookKeeperClusterTestCase {
         f.setAccessible(true);
         f.set(layout, layoutVersion);
 
-        ZkLayoutManager zkLayoutManager = new ZkLayoutManager(zkc, ledgersRootPath, ZooDefs.Ids.OPEN_ACL_UNSAFE);
+        ZkLayoutManager zkLayoutManager = new ZkLayoutManager(zkc, ledgersRootPath, Ids.OPEN_ACL_UNSAFE);
         zkLayoutManager.storeLedgerLayout(layout);
     }
 
@@ -188,7 +186,7 @@ public class TestLedgerManager extends BookKeeperClusterTestCase {
         LedgerLayout layout = new LedgerLayout("DoesNotExist",
                          0xdeadbeef);
 
-        ZkLayoutManager zkLayoutManager = new ZkLayoutManager(zkc, root0, ZooDefs.Ids.OPEN_ACL_UNSAFE);
+        ZkLayoutManager zkLayoutManager = new ZkLayoutManager(zkc, root0, Ids.OPEN_ACL_UNSAFE);
         zkLayoutManager.storeLedgerLayout(layout);
 
         try {
@@ -209,7 +207,7 @@ public class TestLedgerManager extends BookKeeperClusterTestCase {
 
         LedgerLayout layout1 = new LedgerLayout(HierarchicalLedgerManagerFactory.class.getName(),
                          0xdeadbeef);
-        ZkLayoutManager zkLayoutManager1 = new ZkLayoutManager(zkc, root1, ZooDefs.Ids.OPEN_ACL_UNSAFE);
+        ZkLayoutManager zkLayoutManager1 = new ZkLayoutManager(zkc, root1, Ids.OPEN_ACL_UNSAFE);
         zkLayoutManager1.storeLedgerLayout(layout1);
 
         try {

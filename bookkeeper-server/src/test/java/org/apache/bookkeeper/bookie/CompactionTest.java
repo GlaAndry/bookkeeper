@@ -20,41 +20,11 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.ACTIVE_ENTRY_LOG_COUNT;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.ACTIVE_ENTRY_LOG_SPACE_BYTES;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.MAJOR_COMPACTION_COUNT;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.MINOR_COMPACTION_COUNT;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.RECLAIMED_COMPACTION_SPACE_BYTES;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.RECLAIMED_DELETION_SPACE_BYTES;
-import static org.apache.bookkeeper.bookie.BookKeeperServerStats.THREAD_RUNTIME;
-import static org.apache.bookkeeper.bookie.TransactionalEntryLogCompactor.COMPACTED_SUFFIX;
-import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.bookkeeper.bookie.LedgerDirsManager.NoWritableLedgerDirException;
-import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.LedgerEntry;
 import org.apache.bookkeeper.client.LedgerHandle;
@@ -79,6 +49,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.apache.bookkeeper.bookie.BookKeeperServerStats.*;
+import static org.apache.bookkeeper.bookie.TransactionalEntryLogCompactor.COMPACTED_SUFFIX;
+import static org.apache.bookkeeper.meta.MetadataDrivers.runFunctionWithLedgerManagerFactory;
+import static org.junit.Assert.*;
 
 /**
  * This class tests the entry log compaction functionality.
@@ -618,7 +601,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
         Bookie newbookie = new Bookie(newBookieConf);
 
         DigestManager digestManager = DigestManager.instantiate(ledgerId, passwdBytes,
-                BookKeeper.DigestType.toProtoDigestType(digestType), UnpooledByteBufAllocator.DEFAULT,
+                DigestType.toProtoDigestType(digestType), UnpooledByteBufAllocator.DEFAULT,
                 baseClientConf.getUseV2WireProtocol());
 
         for (long entryId = 0; entryId <= lastAddConfirmed; entryId++) {
@@ -827,13 +810,13 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
         CheckpointSource checkpointSource = new CheckpointSource() {
                 AtomicInteger idGen = new AtomicInteger(0);
-                class MyCheckpoint implements CheckpointSource.Checkpoint {
+                class MyCheckpoint implements Checkpoint {
                     int id = idGen.incrementAndGet();
                     @Override
-                    public int compareTo(CheckpointSource.Checkpoint o) {
-                        if (o == CheckpointSource.Checkpoint.MAX) {
+                    public int compareTo(Checkpoint o) {
+                        if (o == Checkpoint.MAX) {
                             return -1;
-                        } else if (o == CheckpointSource.Checkpoint.MIN) {
+                        } else if (o == Checkpoint.MIN) {
                             return 1;
                         }
                         return id - ((MyCheckpoint) o).id;
@@ -841,11 +824,11 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
                 }
 
                 @Override
-                public CheckpointSource.Checkpoint newCheckpoint() {
+                public Checkpoint newCheckpoint() {
                     return new MyCheckpoint();
                 }
 
-                public void checkpointComplete(CheckpointSource.Checkpoint checkpoint, boolean compact)
+                public void checkpointComplete(Checkpoint checkpoint, boolean compact)
                         throws IOException {
                 }
             };
@@ -948,7 +931,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
                 @Override
                 public void asyncProcessLedgers(Processor<Long> processor,
                                                 AsyncCallback.VoidCallback finalCb,
-                        Object context, int successRc, int failureRc) {
+                                                Object context, int successRc, int failureRc) {
                     unsupported();
                 }
                 @Override
@@ -972,15 +955,15 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
                 @Override
                 public LedgerRangeIterator getLedgerRanges(long zkOpTimeoutMs) {
                     final AtomicBoolean hasnext = new AtomicBoolean(true);
-                    return new LedgerManager.LedgerRangeIterator() {
+                    return new LedgerRangeIterator() {
                         @Override
                         public boolean hasNext() throws IOException {
                             return hasnext.get();
                         }
                         @Override
-                        public LedgerManager.LedgerRange next() throws IOException {
+                        public LedgerRange next() throws IOException {
                             hasnext.set(false);
-                            return new LedgerManager.LedgerRange(ledgers);
+                            return new LedgerRange(ledgers);
                         }
                     };
                  }
@@ -1015,7 +998,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
             @Override
             public void checkpointComplete(Checkpoint checkpoint,
-                    boolean compact) throws IOException {
+                                           boolean compact) throws IOException {
             }
         };
         InterleavedLedgerStorage storage = new InterleavedLedgerStorage();
@@ -1399,19 +1382,19 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
         synchronized void compactWithIndexFlushFailure(EntryLogMetadata metadata) {
             LOG.info("Compacting entry log {}.", metadata.getEntryLogId());
-            CompactionPhase scanEntryLog = new ScanEntryLogPhase(metadata);
+            TransactionalEntryLogCompactor.CompactionPhase scanEntryLog = new TransactionalEntryLogCompactor.ScanEntryLogPhase(metadata);
             if (!scanEntryLog.run()) {
                 LOG.info("Compaction for {} end in ScanEntryLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactionLogFile = entryLogger.getCurCompactionLogFile();
-            CompactionPhase flushCompactionLog = new FlushCompactionLogPhase(metadata.getEntryLogId());
+            TransactionalEntryLogCompactor.CompactionPhase flushCompactionLog = new TransactionalEntryLogCompactor.FlushCompactionLogPhase(metadata.getEntryLogId());
             if (!flushCompactionLog.run()) {
                 LOG.info("Compaction for {} end in FlushCompactionLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactedLogFile = getCompactedLogFile(compactionLogFile, metadata.getEntryLogId());
-            CompactionPhase partialFlushIndexPhase = new PartialFlushIndexPhase(compactedLogFile);
+            TransactionalEntryLogCompactor.CompactionPhase partialFlushIndexPhase = new PartialFlushIndexPhase(compactedLogFile);
             if (!partialFlushIndexPhase.run()) {
                 LOG.info("Compaction for {} end in PartialFlushIndexPhase.", metadata.getEntryLogId());
                 return;
@@ -1422,19 +1405,19 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
         synchronized void compactWithLogFlushFailure(EntryLogMetadata metadata) {
             LOG.info("Compacting entry log {}", metadata.getEntryLogId());
-            CompactionPhase scanEntryLog = new ScanEntryLogPhase(metadata);
+            TransactionalEntryLogCompactor.CompactionPhase scanEntryLog = new TransactionalEntryLogCompactor.ScanEntryLogPhase(metadata);
             if (!scanEntryLog.run()) {
                 LOG.info("Compaction for {} end in ScanEntryLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactionLogFile = entryLogger.getCurCompactionLogFile();
-            CompactionPhase logFlushFailurePhase = new LogFlushFailurePhase(metadata.getEntryLogId());
+            TransactionalEntryLogCompactor.CompactionPhase logFlushFailurePhase = new LogFlushFailurePhase(metadata.getEntryLogId());
             if (!logFlushFailurePhase.run()) {
                 LOG.info("Compaction for {} end in FlushCompactionLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactedLogFile = getCompactedLogFile(compactionLogFile, metadata.getEntryLogId());
-            CompactionPhase updateIndex = new UpdateIndexPhase(compactedLogFile);
+            TransactionalEntryLogCompactor.CompactionPhase updateIndex = new TransactionalEntryLogCompactor.UpdateIndexPhase(compactedLogFile);
             if (!updateIndex.run()) {
                 LOG.info("Compaction for entry log {} end in UpdateIndexPhase.", metadata.getEntryLogId());
                 return;
@@ -1443,7 +1426,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
             LOG.info("Compacted entry log : {}.", metadata.getEntryLogId());
         }
 
-        private class PartialFlushIndexPhase extends UpdateIndexPhase {
+        private class PartialFlushIndexPhase extends TransactionalEntryLogCompactor.UpdateIndexPhase {
 
             public PartialFlushIndexPhase(File compactedLogFile) {
                 super(compactedLogFile);
@@ -1471,7 +1454,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
             }
         }
 
-        private class LogFlushFailurePhase extends FlushCompactionLogPhase {
+        private class LogFlushFailurePhase extends TransactionalEntryLogCompactor.FlushCompactionLogPhase {
 
             LogFlushFailurePhase(long compactingLogId) {
                 super(compactingLogId);

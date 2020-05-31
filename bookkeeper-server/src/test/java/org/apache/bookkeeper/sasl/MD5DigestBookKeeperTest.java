@@ -20,17 +20,6 @@
 */
 package org.apache.bookkeeper.sasl;
 
-import static org.apache.bookkeeper.sasl.SaslConstants.JAAS_CLIENT_ALLOWED_IDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicLong;
-import javax.security.auth.login.Configuration;
-
 import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.LedgerEntry;
@@ -43,6 +32,15 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.security.auth.login.Configuration;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.bookkeeper.sasl.SaslConstants.JAAS_CLIENT_ALLOWED_IDS;
+import static org.junit.Assert.*;
 
 /**
  * MD5 digest test.
@@ -93,7 +91,7 @@ public class MD5DigestBookKeeperTest extends BookKeeperClusterTestCase {
         restartBookies();
 
         try (BookKeeper bkc = new BookKeeper(clientConf, zkc);
-            LedgerHandle lh = bkc.openLedger(ledgerId, DigestType.CRC32,
+             LedgerHandle lh = bkc.openLedger(ledgerId, DigestType.CRC32,
                 PASSWD)) {
 
             if (lh.getLastAddConfirmed() < 0) {

@@ -17,22 +17,7 @@
  */
 package org.apache.bookkeeper.client;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieException;
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
@@ -47,6 +32,20 @@ import org.apache.bookkeeper.test.TestCallbacks.AddCallbackFuture;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * This class tests the ledger close logic.
@@ -79,7 +78,7 @@ public class LedgerCloseTest extends BookKeeperClusterTestCase {
         final CountDownLatch latch = new CountDownLatch(1);
         stopBKCluster();
         final AtomicInteger i = new AtomicInteger(0xdeadbeef);
-        AsyncCallback.AddCallback cb = new AsyncCallback.AddCallback() {
+        AddCallback cb = new AddCallback() {
             @Override
             public void addComplete(int rc, LedgerHandle lh, long entryId, Object ctx) {
                 i.set(rc);

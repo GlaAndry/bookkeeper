@@ -19,19 +19,20 @@
 
 package org.apache.bookkeeper.server.component;
 
-import static org.apache.bookkeeper.server.component.ServerLifecycleComponent.loadServerComponents;
-import static org.apache.bookkeeper.server.component.ServerLifecycleComponent.newComponent;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.bookkeeper.conf.ServerConfiguration;
+import org.apache.bookkeeper.server.component.ServerLifecycleComponent;
 import org.apache.bookkeeper.server.conf.BookieConfiguration;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.apache.bookkeeper.stats.StatsLogger;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.apache.bookkeeper.server.component.ServerLifecycleComponent.loadServerComponents;
+import static org.apache.bookkeeper.server.component.ServerLifecycleComponent.newComponent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Manage the test server lifecycle.

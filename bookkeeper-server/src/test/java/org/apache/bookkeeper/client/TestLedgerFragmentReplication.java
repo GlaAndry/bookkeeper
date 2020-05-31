@@ -19,24 +19,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.function.BiConsumer;
-
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.client.api.WriteFlag;
@@ -49,6 +33,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.BiConsumer;
+
+import static org.junit.Assert.*;
+
 /**
  * Tests BKAdmin that it should be able to replicate the failed bookie fragments
  * to target bookie.
@@ -56,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class TestLedgerFragmentReplication extends BookKeeperClusterTestCase {
 
     private static final byte[] TEST_PSSWD = "testpasswd".getBytes();
-    private static final DigestType TEST_DIGEST_TYPE = BookKeeper.DigestType.CRC32;
+    private static final DigestType TEST_DIGEST_TYPE = DigestType.CRC32;
     private static final BiConsumer<Long, Long> NOOP_BICONSUMER = (l, e) -> { };
     private static final Logger LOG = LoggerFactory
             .getLogger(TestLedgerFragmentReplication.class);
@@ -335,7 +326,7 @@ public class TestLedgerFragmentReplication extends BookKeeperClusterTestCase {
     }
 
     private void verifyRecoveredLedgers(LedgerHandle lh, long startEntryId,
-            long endEntryId) throws BKException, InterruptedException {
+                                        long endEntryId) throws BKException, InterruptedException {
         LedgerHandle lhs = bkc.openLedgerNoRecovery(lh.getId(),
                 TEST_DIGEST_TYPE, TEST_PSSWD);
         Enumeration<LedgerEntry> entries = lhs.readEntries(startEntryId,
@@ -404,7 +395,7 @@ public class TestLedgerFragmentReplication extends BookKeeperClusterTestCase {
     }
 
     private void validateEntryIds(LedgerFragment partionedFragment, long expectedFirstEntryId,
-            long expectedFirstStoredEntryId, long expectedLastKnownEntryID, long expectedLastStoredEntryId) {
+                                  long expectedFirstStoredEntryId, long expectedLastKnownEntryID, long expectedLastStoredEntryId) {
         assertEquals("FirstEntryId", expectedFirstEntryId, partionedFragment.getFirstEntryId());
         assertEquals("FirstStoredEntryId", expectedFirstStoredEntryId, partionedFragment.getFirstStoredEntryId());
         assertEquals("LastKnownEntryID", expectedLastKnownEntryID, partionedFragment.getLastKnownEntryId());

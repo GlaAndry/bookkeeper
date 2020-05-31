@@ -20,22 +20,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.util.concurrent.SettableFuture;
-
 import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieException;
 import org.apache.bookkeeper.client.AsyncCallback.AddCallback;
@@ -52,6 +38,16 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+
+import static org.junit.Assert.*;
 
 /**
  * This unit test verifies the behavior of bookkeeper apis, where the operations
@@ -347,7 +343,7 @@ public class BookKeeperCloseTest extends BookKeeperClusterTestCase {
         ReadCallback cb = new ReadCallback() {
             @Override
             public void readComplete(int rccb, LedgerHandle lh,
-                    Enumeration<LedgerEntry> seq, Object ctx) {
+                                     Enumeration<LedgerEntry> seq, Object ctx) {
                 rc.set(rccb);
                 readLatch.countDown();
             }
@@ -501,21 +497,21 @@ public class BookKeeperCloseTest extends BookKeeperClusterTestCase {
             try {
                 bkadmin.openLedger(lh1.getId());
                 fail("Shouldn't be able to open with a closed client");
-            } catch (BKException.BKClientClosedException cce) {
+            } catch (BKClientClosedException cce) {
                 // correct behaviour
             }
 
             try {
                 bkadmin.openLedgerNoRecovery(lh1.getId());
                 fail("Shouldn't be able to open with a closed client");
-            } catch (BKException.BKClientClosedException cce) {
+            } catch (BKClientClosedException cce) {
                 // correct behaviour
             }
 
             try {
                 bkadmin.recoverBookieData(bookieToKill);
                 fail("Shouldn't be able to recover with a closed client");
-            } catch (BKException.BKClientClosedException cce) {
+            } catch (BKClientClosedException cce) {
                 // correct behaviour
             }
 
@@ -523,7 +519,7 @@ public class BookKeeperCloseTest extends BookKeeperClusterTestCase {
                 bkadmin.replicateLedgerFragment(lh3,
                         checkercb.getResult(10, TimeUnit.SECONDS).iterator().next(), NOOP_BICONSUMER);
                 fail("Shouldn't be able to replicate with a closed client");
-            } catch (BKException.BKClientClosedException cce) {
+            } catch (BKClientClosedException cce) {
                 // correct behaviour
             }
         }
@@ -544,12 +540,12 @@ public class BookKeeperCloseTest extends BookKeeperClusterTestCase {
                     try {
                         BookKeeper bk = new BookKeeper(baseClientConf);
                         // 9 is a ledger id of an existing ledger
-                        LedgerHandle lh = bk.createLedger(BookKeeper.DigestType.CRC32, "passwd".getBytes());
+                        LedgerHandle lh = bk.createLedger(DigestType.CRC32, "passwd".getBytes());
                         lh.addEntry("foobar".getBytes());
                         lh.close();
                         long id = lh.getId();
                         // 9 is a ledger id of an existing ledger
-                        lh = bk.openLedgerNoRecovery(id, BookKeeper.DigestType.CRC32, "passwd".getBytes());
+                        lh = bk.openLedgerNoRecovery(id, DigestType.CRC32, "passwd".getBytes());
                         Enumeration<LedgerEntry> entries = lh.readEntries(0, 0);
 
                         lh.close();

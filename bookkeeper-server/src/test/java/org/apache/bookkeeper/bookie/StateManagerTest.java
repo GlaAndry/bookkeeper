@@ -20,12 +20,11 @@
  */
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.io.File;
+import org.apache.bookkeeper.bookie.BookieStateManager;
+import org.apache.bookkeeper.bookie.ExitCode;
+import org.apache.bookkeeper.bookie.ReadOnlyBookie;
+import org.apache.bookkeeper.bookie.StateManager;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.conf.TestBKConfiguration;
 import org.apache.bookkeeper.meta.MetadataBookieDriver;
@@ -35,6 +34,11 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+
+import java.io.File;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Testing StateManager cases.

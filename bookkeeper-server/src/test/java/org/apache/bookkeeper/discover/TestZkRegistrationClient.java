@@ -18,44 +18,13 @@
  */
 package org.apache.bookkeeper.discover;
 
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.collect;
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
-import static org.apache.bookkeeper.common.testing.MoreAsserts.assertSetEquals;
-import static org.apache.bookkeeper.discover.ZKRegistrationClient.ZK_CONNECT_BACKOFF_MS;
-import static org.apache.bookkeeper.util.BookKeeperConstants.AVAILABLE_NODE;
-import static org.apache.bookkeeper.util.BookKeeperConstants.COOKIE_NODE;
-import static org.apache.bookkeeper.util.BookKeeperConstants.READONLY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.Lists;
-
-import java.time.Duration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.bookkeeper.client.BKException.ZKException;
 import org.apache.bookkeeper.common.testing.executors.MockExecutorController;
+import org.apache.bookkeeper.discover.RegistrationClient;
 import org.apache.bookkeeper.discover.RegistrationClient.RegistrationListener;
-import org.apache.bookkeeper.discover.ZKRegistrationClient.WatchTask;
+import org.apache.bookkeeper.discover.ZKRegistrationClient;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.util.ZkUtils;
 import org.apache.bookkeeper.versioning.LongVersion;
@@ -75,6 +44,24 @@ import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.collect;
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
+import static org.apache.bookkeeper.common.testing.MoreAsserts.assertSetEquals;
+import static org.apache.bookkeeper.discover.ZKRegistrationClient.ZK_CONNECT_BACKOFF_MS;
+import static org.apache.bookkeeper.util.BookKeeperConstants.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test of {@link RegistrationClient}.
@@ -434,7 +421,7 @@ public class TestZkRegistrationClient extends MockZooKeeperTestCase {
         //
         //
 
-        WatchTask expectedWatcher;
+        ZKRegistrationClient.WatchTask expectedWatcher;
         if (isWritable) {
             expectedWatcher = zkRegistrationClient.getWatchWritableBookiesTask();
             assertFalse(expectedWatcher.isClosed());
@@ -524,7 +511,7 @@ public class TestZkRegistrationClient extends MockZooKeeperTestCase {
 
         CompletableFuture<Void> watchFuture;
 
-        WatchTask watchTask;
+        ZKRegistrationClient.WatchTask watchTask;
         if (isWritable) {
             watchFuture = zkRegistrationClient.watchWritableBookies(listener);
             watchTask = zkRegistrationClient.getWatchWritableBookiesTask();

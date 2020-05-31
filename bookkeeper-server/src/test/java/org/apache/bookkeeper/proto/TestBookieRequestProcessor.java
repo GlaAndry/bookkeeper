@@ -20,30 +20,21 @@
  */
 package org.apache.bookkeeper.proto;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
 import com.google.protobuf.ByteString;
-
 import io.netty.buffer.UnpooledByteBufAllocator;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.conf.ServerConfiguration;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.AddRequest;
+import org.apache.bookkeeper.proto.BookieRequestProcessor;
+import org.apache.bookkeeper.proto.BookkeeperProtocol.*;
 import org.apache.bookkeeper.proto.BookkeeperProtocol.AddRequest.Flag;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.BKPacketHeader;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.OperationType;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.ProtocolVersion;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.ReadRequest;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.Request;
-import org.apache.bookkeeper.proto.BookkeeperProtocol.WriteLacRequest;
+import org.apache.bookkeeper.proto.RequestUtils;
+import org.apache.bookkeeper.proto.WriteEntryProcessorV3;
+import org.apache.bookkeeper.proto.WriteLacProcessorV3;
 import org.apache.bookkeeper.stats.NullStatsLogger;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test utility methods from bookie request processor.
@@ -104,26 +95,26 @@ public class TestBookieRequestProcessor {
 
         AddRequest add = AddRequest.newBuilder()
             .setLedgerId(10).setEntryId(1)
-            .setFlag(AddRequest.Flag.RECOVERY_ADD)
+            .setFlag(Flag.RECOVERY_ADD)
             .setMasterKey(ByteString.EMPTY)
             .setBody(ByteString.EMPTY)
             .build();
-        assertTrue(RequestUtils.hasFlag(add, AddRequest.Flag.RECOVERY_ADD));
+        assertTrue(RequestUtils.hasFlag(add, Flag.RECOVERY_ADD));
 
         add = AddRequest.newBuilder()
             .setLedgerId(10).setEntryId(1)
             .setMasterKey(ByteString.EMPTY)
             .setBody(ByteString.EMPTY)
             .build();
-        assertFalse(RequestUtils.hasFlag(add, AddRequest.Flag.RECOVERY_ADD));
+        assertFalse(RequestUtils.hasFlag(add, Flag.RECOVERY_ADD));
 
         add = AddRequest.newBuilder()
             .setLedgerId(10).setEntryId(1)
-            .setFlag(AddRequest.Flag.RECOVERY_ADD)
+            .setFlag(Flag.RECOVERY_ADD)
             .setMasterKey(ByteString.EMPTY)
             .setBody(ByteString.EMPTY)
             .build();
-        assertTrue(RequestUtils.hasFlag(add, AddRequest.Flag.RECOVERY_ADD));
+        assertTrue(RequestUtils.hasFlag(add, Flag.RECOVERY_ADD));
     }
 
     @Test

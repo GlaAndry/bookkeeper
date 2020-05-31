@@ -20,20 +20,6 @@
 */
 package org.apache.bookkeeper.sasl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
-import javax.security.auth.login.Configuration;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.client.BKException;
 import org.apache.bookkeeper.client.BKException.BKUnauthorizedAccessException;
@@ -54,6 +40,17 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.security.auth.login.Configuration;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.Assert.*;
 
 /**
  * GSSAPI tests.
@@ -144,7 +141,7 @@ public class GSSAPIBookKeeperTest extends BookKeeperClusterTestCase {
 
         System.setProperty("java.security.auth.login.config", jaasFile.getAbsolutePath());
         System.setProperty("java.security.krb5.conf", krb5file.getAbsolutePath());
-        javax.security.auth.login.Configuration.getConfiguration().refresh();
+        Configuration.getConfiguration().refresh();
 
     }
 
@@ -191,7 +188,7 @@ public class GSSAPIBookKeeperTest extends BookKeeperClusterTestCase {
         restartBookies();
 
         try (BookKeeper bkc = new BookKeeper(clientConf, zkc);
-            LedgerHandle lh = bkc.openLedger(ledgerId, DigestType.CRC32,
+             LedgerHandle lh = bkc.openLedger(ledgerId, DigestType.CRC32,
                 PASSWD)) {
             if (lh.getLastAddConfirmed() < 0) {
                 return 0;

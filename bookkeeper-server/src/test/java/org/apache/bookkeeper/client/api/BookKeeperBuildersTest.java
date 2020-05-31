@@ -20,14 +20,6 @@
  */
 package org.apache.bookkeeper.client.api;
 
-import static org.apache.bookkeeper.client.api.WriteFlag.DEFERRED_SYNC;
-import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.bookkeeper.client.BKException.BKClientClosedException;
 import org.apache.bookkeeper.client.BKException.BKIncorrectParameterException;
 import org.apache.bookkeeper.client.BKException.BKNoSuchLedgerExistsOnMetadataServerException;
@@ -35,9 +27,18 @@ import org.apache.bookkeeper.client.BookKeeper;
 import org.apache.bookkeeper.client.LedgerHandle;
 import org.apache.bookkeeper.client.LedgerMetadataBuilder;
 import org.apache.bookkeeper.client.MockBookKeeperTestCase;
+import org.apache.bookkeeper.client.api.*;
 import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.proto.BookieProtocol;
 import org.junit.Test;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.bookkeeper.client.api.WriteFlag.DEFERRED_SYNC;
+import static org.apache.bookkeeper.common.concurrent.FutureUtils.result;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests of builders.
@@ -403,8 +404,8 @@ public class BookKeeperBuildersTest extends MockBookKeeperTestCase {
     }
 
     protected LedgerMetadata generateLedgerMetadata(int ensembleSize,
-        int writeQuorumSize, int ackQuorumSize, byte[] password,
-        Map<String, byte[]> customMetadata) {
+                                                    int writeQuorumSize, int ackQuorumSize, byte[] password,
+                                                    Map<String, byte[]> customMetadata) {
         return LedgerMetadataBuilder.create()
             .withEnsembleSize(ensembleSize)
             .withWriteQuorumSize(writeQuorumSize)

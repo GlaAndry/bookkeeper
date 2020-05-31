@@ -22,6 +22,8 @@
 package org.apache.bookkeeper.verifier;
 
 import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
+import org.apache.bookkeeper.verifier.BookkeeperVerifier;
+import org.apache.bookkeeper.verifier.DirectBookkeeperDriver;
 import org.junit.Test;
 
 /**

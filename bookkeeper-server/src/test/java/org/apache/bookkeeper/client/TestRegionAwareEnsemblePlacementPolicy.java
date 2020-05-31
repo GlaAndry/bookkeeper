@@ -17,28 +17,8 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy
-        .REPP_DISALLOW_BOOKIE_PLACEMENT_IN_REGION_FEATURE_NAME;
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy.REPP_DNS_RESOLVER_CLASS;
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy
-        .REPP_ENABLE_DURABILITY_ENFORCEMENT_IN_REPLACE;
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy.REPP_ENABLE_VALIDATION;
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy.REPP_MINIMUM_REGIONS_FOR_DURABILITY;
-import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy.REPP_REGIONS_TO_WRITE;
-import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
-import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.HashedWheelTimer;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 import org.apache.bookkeeper.client.BKException.BKNotEnoughBookiesException;
 import org.apache.bookkeeper.conf.ClientConfiguration;
@@ -54,6 +34,14 @@ import org.apache.bookkeeper.util.StaticDNSResolver;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.bookkeeper.client.RegionAwareEnsemblePlacementPolicy.*;
+import static org.apache.bookkeeper.client.RoundRobinDistributionSchedule.writeSetFromValues;
+import static org.apache.bookkeeper.feature.SettableFeatureProvider.DISABLE_ALL;
 
 /**
  * Test a region-aware ensemble placement policy.
@@ -86,7 +74,7 @@ public class TestRegionAwareEnsemblePlacementPolicy extends TestCase {
         StaticDNSResolver.reset();
         updateMyRack(NetworkTopology.DEFAULT_REGION_AND_RACK);
         LOG.info("Set up static DNS Resolver.");
-        conf.setProperty(REPP_DNS_RESOLVER_CLASS, StaticDNSResolver.class.getName());
+        conf.setProperty(RackawareEnsemblePlacementPolicyImpl.REPP_DNS_RESOLVER_CLASS, StaticDNSResolver.class.getName());
 
         addr1 = new BookieSocketAddress("127.0.0.2", 3181);
         addr2 = new BookieSocketAddress("127.0.0.3", 3181);

@@ -20,27 +20,18 @@
  */
 package org.apache.bookkeeper.test;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.bookkeeper.client.AsyncCallback;
-import org.apache.bookkeeper.client.BKException;
-import org.apache.bookkeeper.client.BookKeeper;
-import org.apache.bookkeeper.client.BookKeeperTestClient;
-import org.apache.bookkeeper.client.LedgerEntry;
-import org.apache.bookkeeper.client.LedgerHandle;
+import org.apache.bookkeeper.client.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Multi-thread read test.
@@ -211,7 +202,7 @@ public class MultipleThreadReadTest extends BookKeeperClusterTestCase {
     /**
      * Ledger L is handled threads [L, T+(T/L), T+2*(T/L) ... ]
      * Reads are simultaneous, writes are sequential.
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void multiLedgerMultiThreadRead(final int numLedgers,
                                            final int numThreads) throws IOException {

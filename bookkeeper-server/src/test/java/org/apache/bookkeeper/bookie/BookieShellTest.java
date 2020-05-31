@@ -19,29 +19,9 @@
 
 package org.apache.bookkeeper.bookie;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyNew;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-
 import com.google.common.collect.Maps;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.function.Function;
-import org.apache.bookkeeper.bookie.BookieShell.MyCommand;
-import org.apache.bookkeeper.bookie.BookieShell.RecoverCmd;
+import org.apache.bookkeeper.bookie.BookieShell;
+import org.apache.bookkeeper.bookie.Cookie;
 import org.apache.bookkeeper.client.BookKeeperAdmin;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.conf.ClientConfiguration;
@@ -69,6 +49,21 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.function.Function;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 /**
  * Unit test for {@link BookieShell}.
@@ -167,14 +162,14 @@ public class BookieShellTest {
         );
     }
 
-    private static CommandLine parseCommandLine(MyCommand cmd, String... args) throws ParseException {
+    private static CommandLine parseCommandLine(BookieShell.MyCommand cmd, String... args) throws ParseException {
         BasicParser parser = new BasicParser();
         return parser.parse(cmd.getOptions(), args);
     }
 
     @Test
     public void testRecoverCmdMissingArgument() throws Exception {
-        RecoverCmd cmd = (RecoverCmd) shell.commands.get("recover");
+        BookieShell.RecoverCmd cmd = (BookieShell.RecoverCmd) shell.commands.get("recover");
         CommandLine cmdLine = parseCommandLine(cmd);
         try {
             cmd.runCmd(cmdLine);
@@ -187,7 +182,7 @@ public class BookieShellTest {
 
     @Test
     public void testRecoverCmdInvalidBookieAddress() throws Exception {
-        RecoverCmd cmd = (RecoverCmd) shell.commands.get("recover");
+        BookieShell.RecoverCmd cmd = (BookieShell.RecoverCmd) shell.commands.get("recover");
         CommandLine cmdLine = parseCommandLine(cmd, "127.0.0.1");
         assertEquals(-1, cmd.runCmd(cmdLine));
         PowerMockito.verifyNew(BookKeeperAdmin.class, never()).withArguments(any(ClientConfiguration.class));
@@ -200,7 +195,7 @@ public class BookieShellTest {
         when(admin.getLedgersContainBookies(any(Set.class)))
             .thenReturn(ledgersContainBookies);
 
-        RecoverCmd cmd = (RecoverCmd) shell.commands.get("recover");
+        BookieShell.RecoverCmd cmd = (BookieShell.RecoverCmd) shell.commands.get("recover");
         CommandLine cmdLine = parseCommandLine(cmd, "-force", "-q", "127.0.0.1:3181");
         assertEquals(0, cmd.runCmd(cmdLine));
         PowerMockito
@@ -256,7 +251,7 @@ public class BookieShellTest {
                                      boolean skipOpenLedgers,
                                      boolean removeCookies,
                                      String... args) throws Exception {
-        RecoverCmd cmd = (RecoverCmd) shell.commands.get("recover");
+        BookieShell.RecoverCmd cmd = (BookieShell.RecoverCmd) shell.commands.get("recover");
         CommandLine cmdLine = parseCommandLine(cmd, args);
         assertEquals(0, cmd.runCmd(cmdLine));
         PowerMockito
@@ -321,7 +316,7 @@ public class BookieShellTest {
                                boolean skipOpenLedgers,
                                boolean removeCookies,
                                String... args) throws Exception {
-        RecoverCmd cmd = (RecoverCmd) shell.commands.get("recover");
+        BookieShell.RecoverCmd cmd = (BookieShell.RecoverCmd) shell.commands.get("recover");
         CommandLine cmdLine = parseCommandLine(cmd, args);
         assertEquals(0, cmd.runCmd(cmdLine));
         PowerMockito

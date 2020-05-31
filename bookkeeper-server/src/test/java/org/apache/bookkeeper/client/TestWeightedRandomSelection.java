@@ -18,18 +18,6 @@
 
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.bookkeeper.client.WeightedRandomSelection.WeightedObject;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -42,6 +30,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test weighted random selection methods.
@@ -152,7 +144,7 @@ public class TestWeightedRandomSelection {
     }
 
     void verifyResult(Map<String, WeightedObject> map, Map<String, Integer> randomSelection, int multiplier,
-            long minWeight, long medianWeight, long totalWeight, int totalTries) {
+                      long minWeight, long medianWeight, long totalWeight, int totalTries) {
         List<Integer> values = new ArrayList<Integer>(randomSelection.values());
         Collections.sort(values);
         double medianObserved, medianObservedWeight, medianExpectedWeight;

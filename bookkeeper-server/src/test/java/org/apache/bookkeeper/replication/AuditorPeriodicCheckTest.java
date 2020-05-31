@@ -20,32 +20,7 @@
  */
 package org.apache.bookkeeper.replication;
 
-import static org.apache.bookkeeper.replication.ReplicationStats.AUDITOR_SCOPE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import io.netty.buffer.ByteBuf;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.bookie.BookieAccessor;
 import org.apache.bookkeeper.bookie.BookieException;
@@ -77,6 +52,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.apache.bookkeeper.replication.ReplicationStats.AUDITOR_SCOPE;
+import static org.junit.Assert.*;
 
 /**
  * This test verifies that the period check on the auditor
@@ -392,7 +384,7 @@ public class AuditorPeriodicCheckTest extends BookKeeperClusterTestCase {
     }
 
     void validateInitialDelayOfCheckAllLedgers(LedgerUnderreplicationManager urm, long timeSinceLastExecutedInSecs,
-            long auditorPeriodicCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
+                                               long auditorPeriodicCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
             throws UnavailableException, UnknownHostException, InterruptedException {
         TestStatsProvider statsProvider = new TestStatsProvider();
         TestStatsLogger statsLogger = statsProvider.getStatsLogger(AUDITOR_SCOPE);
@@ -485,7 +477,7 @@ public class AuditorPeriodicCheckTest extends BookKeeperClusterTestCase {
     }
 
     void validateInitialDelayOfPlacementPolicyCheck(LedgerUnderreplicationManager urm, long timeSinceLastExecutedInSecs,
-            long auditorPeriodicPlacementPolicyCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
+                                                    long auditorPeriodicPlacementPolicyCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
             throws UnavailableException, UnknownHostException, InterruptedException {
         TestStatsProvider statsProvider = new TestStatsProvider();
         TestStatsLogger statsLogger = statsProvider.getStatsLogger(AUDITOR_SCOPE);
@@ -589,7 +581,7 @@ public class AuditorPeriodicCheckTest extends BookKeeperClusterTestCase {
     }
 
     void validateInitialDelayOfReplicasCheck(LedgerUnderreplicationManager urm, long timeSinceLastExecutedInSecs,
-            long auditorPeriodicReplicasCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
+                                             long auditorPeriodicReplicasCheckInterval, ServerConfiguration servConf, BookKeeper bkc)
             throws UnavailableException, UnknownHostException, InterruptedException {
         TestStatsProvider statsProvider = new TestStatsProvider();
         TestStatsLogger statsLogger = statsProvider.getStatsLogger(AUDITOR_SCOPE);
@@ -660,12 +652,12 @@ public class AuditorPeriodicCheckTest extends BookKeeperClusterTestCase {
         final AtomicReference<CountDownLatch> latchRef = new AtomicReference<CountDownLatch>(new CountDownLatch(1));
 
         public TestAuditor(String bookieIdentifier, ServerConfiguration conf, BookKeeper bkc, boolean ownBkc,
-                StatsLogger statsLogger) throws UnavailableException {
+                           StatsLogger statsLogger) throws UnavailableException {
             super(bookieIdentifier, conf, bkc, ownBkc, statsLogger);
         }
 
         public TestAuditor(String bookieIdentifier, ServerConfiguration conf, BookKeeper bkc, boolean ownBkc,
-                BookKeeperAdmin bkadmin, boolean ownadmin, StatsLogger statsLogger) throws UnavailableException {
+                           BookKeeperAdmin bkadmin, boolean ownadmin, StatsLogger statsLogger) throws UnavailableException {
             super(bookieIdentifier, conf, bkc, ownBkc, bkadmin, ownadmin, statsLogger);
         }
 

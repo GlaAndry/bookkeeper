@@ -17,18 +17,22 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.apache.bookkeeper.client.AsyncCallback.ReadCallback;
+import org.apache.bookkeeper.client.BKException;
+import org.apache.bookkeeper.client.BKException.Code;
+import org.apache.bookkeeper.client.BookKeeper.DigestType;
+import org.apache.bookkeeper.client.LedgerEntry;
+import org.apache.bookkeeper.client.LedgerHandle;
+import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.bookkeeper.client.AsyncCallback.ReadCallback;
-import org.apache.bookkeeper.client.BKException.Code;
-import org.apache.bookkeeper.client.BookKeeper.DigestType;
-import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
-import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
   * Test read next entry and the latest last add confirmed.
@@ -61,7 +65,7 @@ public class TestReadLastEntry extends BookKeeperClusterTestCase {
 
         latch1.await();
 
-        assertEquals(BKException.Code.NoSuchEntryException, rcStore.get());
+        assertEquals(Code.NoSuchEntryException, rcStore.get());
 
         lh.close();
         readLh.close();
@@ -112,7 +116,7 @@ public class TestReadLastEntry extends BookKeeperClusterTestCase {
 
         latch1.await();
 
-        assertEquals(BKException.Code.OK, rcStore.get());
+        assertEquals(Code.OK, rcStore.get());
         assertEquals(lastByteStore.byteValue(), data[1023]);
 
         lh.close();

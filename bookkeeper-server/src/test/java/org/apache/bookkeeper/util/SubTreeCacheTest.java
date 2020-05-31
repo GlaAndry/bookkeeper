@@ -21,14 +21,7 @@
 
 package org.apache.bookkeeper.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import org.apache.bookkeeper.util.SubTreeCache;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
@@ -36,6 +29,8 @@ import org.apache.zookeeper.Watcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
 
 /**
  * Test the subtree cache.

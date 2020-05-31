@@ -21,28 +21,11 @@
 
 package org.apache.bookkeeper.bookie;
 
-import static org.apache.bookkeeper.bookie.BookieException.Code.OK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.bookkeeper.bookie.Bookie.NoLedgerException;
 import org.apache.bookkeeper.bookie.CheckpointSource.Checkpoint;
-import org.apache.bookkeeper.bookie.FileInfoBackingCache.CachedFileInfo;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.conf.TestBKConfiguration;
 import org.apache.bookkeeper.meta.LedgerManager;
@@ -59,6 +42,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.bookkeeper.bookie.BookieException.Code.OK;
+import static org.junit.Assert.*;
 
 /**
  * LedgerCache related test cases.
@@ -282,7 +277,7 @@ public class LedgerCacheTest {
         // Create ledger index file
         ledgerStorage.setMasterKey(1, "key".getBytes());
 
-        CachedFileInfo fileInfo = ledgerCache.getIndexPersistenceManager().getFileInfo(Long.valueOf(1), null);
+        FileInfoBackingCache.CachedFileInfo fileInfo = ledgerCache.getIndexPersistenceManager().getFileInfo(Long.valueOf(1), null);
 
         // Add entries
         ledgerStorage.addEntry(generateEntry(1, 1));
@@ -344,7 +339,7 @@ public class LedgerCacheTest {
         for (int i = 1; i <= numLedgers; i++) {
             try {
                 b.readEntry(i, 1);
-            } catch (Bookie.NoLedgerException nle) {
+            } catch (NoLedgerException nle) {
                 // this is fine, means the ledger was never written to the index cache
                 assertEquals("No ledger should only happen for the last ledger",
                              i, numLedgers);
@@ -697,7 +692,7 @@ public class LedgerCacheTest {
 
         // simplified memTable full callback.
         @Override
-        public void onSizeLimitReached(final CheckpointSource.Checkpoint cp) throws IOException {
+        public void onSizeLimitReached(final Checkpoint cp) throws IOException {
             LOG.info("Reached size {}", cp);
             // use synchronous way
             try {

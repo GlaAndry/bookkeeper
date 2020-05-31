@@ -18,11 +18,22 @@
 
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.util.concurrent.MoreExecutors;
-
 import io.netty.buffer.UnpooledByteBufAllocator;
+import org.apache.bookkeeper.conf.ServerConfiguration;
+import org.apache.bookkeeper.conf.TestBKConfiguration;
+import org.apache.bookkeeper.stats.Counter;
+import org.apache.bookkeeper.test.TestStatsProvider;
+import org.apache.bookkeeper.test.TestStatsProvider.TestOpStatsLogger;
+import org.apache.bookkeeper.test.TestStatsProvider.TestStatsLogger;
+import org.apache.bookkeeper.util.DiskChecker;
+import org.apache.commons.lang.mutable.MutableInt;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,23 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.IntStream;
 
-import org.apache.bookkeeper.bookie.EntryLogManagerForEntryLogPerLedger.BufferedLogChannelWithDirInfo;
-import org.apache.bookkeeper.bookie.EntryLogger.BufferedLogChannel;
-import org.apache.bookkeeper.bookie.LedgerDirsManager.NoWritableLedgerDirException;
-import org.apache.bookkeeper.conf.ServerConfiguration;
-import org.apache.bookkeeper.conf.TestBKConfiguration;
-import org.apache.bookkeeper.stats.Counter;
-import org.apache.bookkeeper.test.TestStatsProvider;
-import org.apache.bookkeeper.test.TestStatsProvider.TestOpStatsLogger;
-import org.apache.bookkeeper.test.TestStatsProvider.TestStatsLogger;
-import org.apache.bookkeeper.util.DiskChecker;
-import org.apache.commons.lang.mutable.MutableInt;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test new log creation.
@@ -244,7 +239,7 @@ public class CreateNewLogTest {
                 expectedPreAllocatedLogID, entryLoggerAllocator.getPreallocatedLogId());
         Assert.assertEquals("Number of current ", numOfLedgers,
                 entryLogManager.getCopyOfCurrentLogs().size());
-        List<BufferedLogChannel> rotatedLogChannels = entryLogManager.getRotatedLogChannels();
+        List<EntryLogger.BufferedLogChannel> rotatedLogChannels = entryLogManager.getRotatedLogChannels();
         Assert.assertEquals("Number of LogChannels rotated", 1, rotatedLogChannels.size());
         Assert.assertEquals("Rotated logchannel logid", rotatedLedger, rotatedLogChannels.iterator().next().getLogId());
         entryLogger.flush();
@@ -332,7 +327,7 @@ public class CreateNewLogTest {
         File nonFilledLedgerDir = Bookie.getCurrentDirectory(new File(ledgerDirs[numDirs - 1]));
 
         entryLogManager.createNewLog(ledgerId);
-        BufferedLogChannel newLogChannel = entryLogManager.getCurrentLogForLedger(ledgerId);
+        EntryLogger.BufferedLogChannel newLogChannel = entryLogManager.getCurrentLogForLedger(ledgerId);
         Assert.assertEquals("Directory of newly created BufferedLogChannel file", nonFilledLedgerDir.getAbsolutePath(),
                 newLogChannel.getLogFile().getParentFile().getAbsolutePath());
 
@@ -386,9 +381,9 @@ public class CreateNewLogTest {
     }
 
 
-    int highestFrequencyOfEntryLogsPerLedgerDir(Set<BufferedLogChannelWithDirInfo> copyOfCurrentLogsWithDirInfo) {
+    int highestFrequencyOfEntryLogsPerLedgerDir(Set<EntryLogManagerForEntryLogPerLedger.BufferedLogChannelWithDirInfo> copyOfCurrentLogsWithDirInfo) {
         Map<File, MutableInt> frequencyOfEntryLogsInLedgerDirs = new HashMap<File, MutableInt>();
-        for (BufferedLogChannelWithDirInfo logChannelWithDirInfo : copyOfCurrentLogsWithDirInfo) {
+        for (EntryLogManagerForEntryLogPerLedger.BufferedLogChannelWithDirInfo logChannelWithDirInfo : copyOfCurrentLogsWithDirInfo) {
             File parentDir = logChannelWithDirInfo.getLogChannel().getLogFile().getParentFile();
             if (frequencyOfEntryLogsInLedgerDirs.containsKey(parentDir)) {
                 frequencyOfEntryLogsInLedgerDirs.get(parentDir).increment();
@@ -398,7 +393,7 @@ public class CreateNewLogTest {
         }
         @SuppressWarnings("unchecked")
         int highestFreq = ((Entry<File, MutableInt>) (frequencyOfEntryLogsInLedgerDirs.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).get())).getValue().intValue();
+                .max(Entry.comparingByValue()).get())).getValue().intValue();
         return highestFreq;
     }
 
@@ -771,7 +766,7 @@ public class CreateNewLogTest {
     }
 
     private static void createNewLogs(EntryLogManagerForEntryLogPerLedger entrylogManager, long ledgerId,
-            int numOfTimes) throws IOException {
+                                      int numOfTimes) throws IOException {
         for (int i = 0; i < numOfTimes; i++) {
             entrylogManager.createNewLog(ledgerId);
         }

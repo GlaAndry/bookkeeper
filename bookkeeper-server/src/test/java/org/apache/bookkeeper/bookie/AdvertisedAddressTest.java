@@ -21,12 +21,7 @@
 
 package org.apache.bookkeeper.bookie;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-
+import org.apache.bookkeeper.bookie.Bookie;
 import org.apache.bookkeeper.client.BookKeeperAdmin;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.conf.TestBKConfiguration;
@@ -35,6 +30,12 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.apache.bookkeeper.test.PortManager;
 import org.apache.bookkeeper.util.IOUtils;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for when the setAdvertisedAddress is specified.

@@ -18,12 +18,14 @@
  */
 package org.apache.bookkeeper.meta.zk;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URI;
 import org.apache.bookkeeper.meta.HierarchicalLedgerManagerFactory;
 import org.apache.bookkeeper.meta.LongHierarchicalLedgerManagerFactory;
+import org.apache.bookkeeper.meta.zk.ZKMetadataDriverBase;
 import org.junit.Test;
+
+import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test the static methods of {@link ZKMetadataDriverBase}.

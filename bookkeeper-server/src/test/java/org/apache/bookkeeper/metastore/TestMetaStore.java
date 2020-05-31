@@ -17,28 +17,9 @@
  */
 package org.apache.bookkeeper.metastore;
 
-import static org.apache.bookkeeper.metastore.MetastoreScannableTable.EMPTY_END_KEY;
-import static org.apache.bookkeeper.metastore.MetastoreScannableTable.EMPTY_START_KEY;
-import static org.apache.bookkeeper.metastore.MetastoreTable.ALL_FIELDS;
-import static org.apache.bookkeeper.metastore.MetastoreTable.NON_FIELDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.bookkeeper.metastore.InMemoryMetastoreTable.MetadataVersion;
 import org.apache.bookkeeper.metastore.MSException.Code;
 import org.apache.bookkeeper.metastore.MetastoreScannableTable.Order;
@@ -51,6 +32,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static org.apache.bookkeeper.metastore.MetastoreScannableTable.EMPTY_END_KEY;
+import static org.apache.bookkeeper.metastore.MetastoreScannableTable.EMPTY_START_KEY;
+import static org.apache.bookkeeper.metastore.MetastoreTable.ALL_FIELDS;
+import static org.apache.bookkeeper.metastore.MetastoreTable.NON_FIELDS;
+import static org.junit.Assert.*;
 
 /**
  * Test the metastore.

@@ -20,10 +20,11 @@
  */
 package org.apache.bookkeeper.util.collections;
 
-import java.util.Optional;
-
+import org.apache.bookkeeper.util.collections.SynchronizedHashMultiMap;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Optional;
 
 /**
  * Test for SynchronizedHashMultiMap.

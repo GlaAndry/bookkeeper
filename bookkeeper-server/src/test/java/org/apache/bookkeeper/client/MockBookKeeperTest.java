@@ -16,14 +16,12 @@
  */
 package org.apache.bookkeeper.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.bookkeeper.client.BookKeeper.DigestType;
+import org.junit.Test;
 
 import java.util.Enumeration;
 
-import org.apache.bookkeeper.client.BookKeeper.DigestType;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test the mocked BookKeeper client.

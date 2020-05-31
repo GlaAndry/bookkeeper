@@ -17,19 +17,21 @@
  */
 package org.apache.bookkeeper.meta;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.google.common.collect.Lists;
+import org.apache.bookkeeper.client.LedgerMetadataBuilder;
+import org.apache.bookkeeper.client.api.DigestType;
+import org.apache.bookkeeper.client.api.LedgerMetadata;
+import org.apache.bookkeeper.meta.LedgerMetadataSerDe;
+import org.apache.bookkeeper.net.BookieSocketAddress;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Random;
-import org.apache.bookkeeper.client.LedgerMetadataBuilder;
-import org.apache.bookkeeper.client.api.DigestType;
-import org.apache.bookkeeper.client.api.LedgerMetadata;
-import org.apache.bookkeeper.net.BookieSocketAddress;
-import org.junit.Assert;
-import org.junit.Test;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Test Ledger Metadata serialization and deserialization.

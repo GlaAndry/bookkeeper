@@ -17,40 +17,10 @@
  */
 package org.apache.bookkeeper.client;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.bookkeeper.client.api.BKException.Code.NoBookieAvailableException;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.apache.bookkeeper.client.BKException.BKDigestMatchException;
 import org.apache.bookkeeper.client.BKException.Code;
 import org.apache.bookkeeper.client.api.CreateBuilder;
@@ -79,6 +49,17 @@ import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.GeneralSecurityException;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.bookkeeper.client.api.BKException.Code.NoBookieAvailableException;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Base class for Mock-based Client testcases.
@@ -117,7 +98,7 @@ public abstract class MockBookKeeperTestCase {
     }
 
     private MockEntry getMockLedgerEntry(long ledgerId,
-                                         BookieSocketAddress bookieSocketAddress, long entryId) throws BKException{
+                                         BookieSocketAddress bookieSocketAddress, long entryId) throws BKException {
         if (failedBookies.contains(bookieSocketAddress)) {
             throw BKException.create(NoBookieAvailableException);
         }
@@ -246,8 +227,8 @@ public abstract class MockBookKeeperTestCase {
         return DigestManager.instantiate(
                 ledgerId,
                 metadata.getPassword(),
-                org.apache.bookkeeper.client.BookKeeper.DigestType.toProtoDigestType(
-                        org.apache.bookkeeper.client.BookKeeper.DigestType.fromApiDigestType(
+                BookKeeper.DigestType.toProtoDigestType(
+                        BookKeeper.DigestType.fromApiDigestType(
                                 metadata.getDigestType())),
                 UnpooledByteBufAllocator.DEFAULT, false);
     }
@@ -346,7 +327,7 @@ public abstract class MockBookKeeperTestCase {
                         if (remainBookies.iterator().hasNext()) {
                             return remainBookies.iterator().next();
                         }
-                        throw BKException.create(BKException.Code.NotEnoughBookiesException);
+                        throw BKException.create(Code.NotEnoughBookiesException);
                     }
                 });
     }
@@ -495,12 +476,12 @@ public abstract class MockBookKeeperTestCase {
                     ByteBufList entry = macManager.computeDigestAndPackageForSending(entryId,
                         mockEntry.lastAddConfirmed, mockEntry.payload.length,
                         Unpooled.wrappedBuffer(mockEntry.payload));
-                    callback.readEntryComplete(BKException.Code.OK, ledgerId, entryId, ByteBufList.coalesce(entry),
+                    callback.readEntryComplete(Code.OK, ledgerId, entryId, ByteBufList.coalesce(entry),
                             args[4]);
                     entry.release();
                 } else {
                     LOG.info("readEntry - no such mock entry {}@{} at {}", entryId, ledgerId, bookieSocketAddress);
-                    callback.readEntryComplete(BKException.Code.NoSuchEntryException, ledgerId, entryId, null, args[4]);
+                    callback.readEntryComplete(Code.NoSuchEntryException, ledgerId, entryId, null, args[4]);
                 }
             });
             return null;
@@ -520,7 +501,7 @@ public abstract class MockBookKeeperTestCase {
     }
 
     private byte[] extractEntryPayload(long ledgerId, long entryId, ByteBufList toSend)
-            throws BKException.BKDigestMatchException {
+            throws BKDigestMatchException {
         ByteBuf toSendCopy = Unpooled.copiedBuffer(toSend.toArray());
         toSendCopy.resetReaderIndex();
         DigestManager macManager = null;
@@ -564,7 +545,7 @@ public abstract class MockBookKeeperTestCase {
                 }
                 boolean fenced = fencedLedgers.contains(ledgerId);
                 if (fenced && !isRecoveryAdd) {
-                    callback.writeComplete(BKException.Code.LedgerFencedException,
+                    callback.writeComplete(Code.LedgerFencedException,
                         ledgerId, entryId, bookieSocketAddress, ctx);
                 } else {
                     if (failedBookies.contains(bookieSocketAddress)) {
@@ -578,7 +559,7 @@ public abstract class MockBookKeeperTestCase {
                                     bookieSocketAddress, new byte[0], BookieProtocol.INVALID_ENTRY_ID);
                     }
                     registerMockEntryForRead(ledgerId, entryId, bookieSocketAddress, entry, ledgerId);
-                    callback.writeComplete(BKException.Code.OK,
+                    callback.writeComplete(Code.OK,
                             ledgerId, entryId, bookieSocketAddress, ctx);
                 }
                 toSend.release();
@@ -610,7 +591,7 @@ public abstract class MockBookKeeperTestCase {
                         callback.forceLedgerComplete(NoBookieAvailableException, ledgerId, bookieSocketAddress, ctx);
                         return;
                     }
-                    callback.forceLedgerComplete(BKException.Code.OK, ledgerId, bookieSocketAddress, ctx);
+                    callback.forceLedgerComplete(Code.OK, ledgerId, bookieSocketAddress, ctx);
                 });
             };
             if (suspendedBookiesForForceLedgerAcks.contains(bookieSocketAddress)) {

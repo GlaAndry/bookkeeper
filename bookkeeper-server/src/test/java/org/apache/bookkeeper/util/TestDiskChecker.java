@@ -17,20 +17,23 @@
  */
 package org.apache.bookkeeper.util;
 
-import static org.junit.Assert.assertTrue;
+import org.apache.bookkeeper.util.DiskChecker;
+import org.apache.bookkeeper.util.DiskChecker.DiskErrorException;
+import org.apache.bookkeeper.util.DiskChecker.DiskOutOfSpaceException;
+import org.apache.bookkeeper.util.DiskChecker.DiskWarnThresholdException;
+import org.apache.bookkeeper.util.IOUtils;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.bookkeeper.util.DiskChecker.DiskErrorException;
-import org.apache.bookkeeper.util.DiskChecker.DiskOutOfSpaceException;
-import org.apache.bookkeeper.util.DiskChecker.DiskWarnThresholdException;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test to verify {@link DiskChecker}.

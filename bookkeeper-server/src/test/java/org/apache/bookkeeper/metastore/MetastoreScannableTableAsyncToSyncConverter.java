@@ -17,9 +17,9 @@
  */
 package org.apache.bookkeeper.metastore;
 
-import java.util.Set;
-
 import org.apache.bookkeeper.metastore.MetastoreScannableTable.Order;
+
+import java.util.Set;
 
 /**
  * Async to sync converter for a metastore scannable table.

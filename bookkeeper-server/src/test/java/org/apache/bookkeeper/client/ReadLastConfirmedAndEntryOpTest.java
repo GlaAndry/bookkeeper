@@ -19,35 +19,14 @@
 
 package org.apache.bookkeeper.client;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bookkeeper.client.*;
 import org.apache.bookkeeper.client.BKException.Code;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
-import org.apache.bookkeeper.client.ReadLastConfirmedAndEntryOp.LastConfirmedAndEntryCallback;
 import org.apache.bookkeeper.client.api.LastConfirmedAndEntry;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.client.impl.LastConfirmedAndEntryImpl;
@@ -67,6 +46,17 @@ import org.apache.bookkeeper.util.ByteBufList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test {@link ReadLastConfirmedAndEntryOp} with mocks.
@@ -196,7 +186,7 @@ public class ReadLastConfirmedAndEntryOpTest {
         );
 
         CompletableFuture<LastConfirmedAndEntry> resultFuture = new CompletableFuture<>();
-        LastConfirmedAndEntryCallback resultCallback = (rc, lastAddConfirmed, entry) -> {
+        ReadLastConfirmedAndEntryOp.LastConfirmedAndEntryCallback resultCallback = (rc, lastAddConfirmed, entry) -> {
             if (Code.OK != rc) {
                 FutureUtils.completeExceptionally(resultFuture, BKException.create(rc));
             } else {

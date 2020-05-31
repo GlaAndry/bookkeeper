@@ -20,9 +20,6 @@
  */
 package org.apache.bookkeeper.replication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.bookkeeper.auth.AuthCallbacks;
 import org.apache.bookkeeper.auth.AuthToken;
 import org.apache.bookkeeper.auth.ClientAuthProvider;
@@ -34,6 +31,9 @@ import org.apache.bookkeeper.test.BookKeeperClusterTestCase;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test verifies the auditor bookie scenarios from the auth point-of-view.
@@ -62,7 +62,7 @@ public class AuthAutoRecoveryTest extends BookKeeperClusterTestCase {
 
         @Override
         public ClientAuthProvider newProvider(ClientConnectionPeer addr,
-            final AuthCallbacks.GenericCallback<Void> completeCb) {
+                                              final AuthCallbacks.GenericCallback<Void> completeCb) {
             return new ClientAuthProvider() {
                 public void init(AuthCallbacks.GenericCallback<AuthToken> cb) {
                     completeCb.operationComplete(BKException.Code.OK, null);

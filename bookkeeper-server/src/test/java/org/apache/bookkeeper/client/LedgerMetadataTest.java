@@ -19,19 +19,19 @@
 
 package org.apache.bookkeeper.client;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Lists;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
 import org.apache.bookkeeper.client.BookKeeper.DigestType;
+import org.apache.bookkeeper.client.LedgerMetadataBuilder;
 import org.apache.bookkeeper.client.api.LedgerMetadata;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.junit.Test;
+
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.junit.Assert.*;
 
 /**
  * Unit test for ledger metadata.
@@ -46,7 +46,7 @@ public class LedgerMetadataTest {
                 new BookieSocketAddress("192.0.2.1", 1234),
                 new BookieSocketAddress("192.0.2.2", 1234),
                 new BookieSocketAddress("192.0.2.3", 1234));
-        org.apache.bookkeeper.client.api.LedgerMetadata metadata = LedgerMetadataBuilder.create()
+        LedgerMetadata metadata = LedgerMetadataBuilder.create()
             .withEnsembleSize(3).withWriteQuorumSize(2).withAckQuorumSize(1)
             .withDigestType(DigestType.CRC32.toApiDigestType()).withPassword(passwd)
             .newEnsembleEntry(0L, ensemble)

@@ -18,23 +18,22 @@
 
 package org.apache.bookkeeper.server.http.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
-import java.io.Writer;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.http.HttpServer.Method;
 import org.apache.bookkeeper.http.HttpServer.StatusCode;
 import org.apache.bookkeeper.http.service.HttpServiceRequest;
 import org.apache.bookkeeper.http.service.HttpServiceResponse;
+import org.apache.bookkeeper.server.http.service.MetricsService;
 import org.apache.bookkeeper.stats.StatsProvider;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.io.Writer;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test {@link MetricsService}.

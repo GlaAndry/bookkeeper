@@ -20,11 +20,13 @@
  */
 package org.apache.bookkeeper.net;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.bookkeeper.net.BookieSocketAddress;
+import org.junit.Test;
 
 import java.net.InetSocketAddress;
-import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for BookieSocketAddress getSocketAddress cache logic.
