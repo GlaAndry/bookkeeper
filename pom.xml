@@ -52,6 +52,7 @@
   </ciManagement>
   <modules>
     <module>moduleTestBookkeeper</module>
+    <module>cpu-affinity</module>
     <!--
     <module>buildtools</module>
     <module>circe-checksum</module>
@@ -66,7 +67,7 @@
     <module>bookkeeper-http</module>
     <module>stream</module>
     <module>tools</module>
-    <module>cpu-affinity</module>
+
     <module>metadata-drivers</module>
     <module>bookkeeper-dist</module>
     <module>shaded</module>
