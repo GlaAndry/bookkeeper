@@ -113,7 +113,7 @@ public class TestInterleavedLedgerStorage {
         public TestableEntryLogger(
                 ServerConfiguration conf,
                 LedgerDirsManager ledgerDirsManager,
-                EntryLogger.EntryLogListener listener,
+                EntryLogListener listener,
                 StatsLogger statsLogger) throws IOException {
             super(conf, ledgerDirsManager, listener, statsLogger, UnpooledByteBufAllocator.DEFAULT);
         }
@@ -123,7 +123,7 @@ public class TestInterleavedLedgerStorage {
         }
 
         @Override
-        void checkEntry(long ledgerId, long entryId, long location) throws EntryLogger.EntryLookupException, IOException {
+        void checkEntry(long ledgerId, long entryId, long location) throws EntryLookupException, IOException {
             CheckEntryListener runBefore = testPoint;
             if (runBefore != null) {
                 runBefore.accept(ledgerId, entryId, logIdForOffset(location), posForOffset(location));

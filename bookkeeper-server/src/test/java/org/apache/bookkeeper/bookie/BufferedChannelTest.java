@@ -37,7 +37,7 @@ import java.util.Random;
 /**
  * Tests for BufferedChannel.
  */
-public class BufferedChannelMineTest {
+public class BufferedChannelTest {
 
     private static Random rand = new Random();
     private static final int INTERNAL_BUFFER_WRITE_CAPACITY = -1;

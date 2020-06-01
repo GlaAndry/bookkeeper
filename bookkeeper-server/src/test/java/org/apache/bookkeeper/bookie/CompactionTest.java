@@ -1382,19 +1382,19 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
         synchronized void compactWithIndexFlushFailure(EntryLogMetadata metadata) {
             LOG.info("Compacting entry log {}.", metadata.getEntryLogId());
-            TransactionalEntryLogCompactor.CompactionPhase scanEntryLog = new TransactionalEntryLogCompactor.ScanEntryLogPhase(metadata);
+            CompactionPhase scanEntryLog = new ScanEntryLogPhase(metadata);
             if (!scanEntryLog.run()) {
                 LOG.info("Compaction for {} end in ScanEntryLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactionLogFile = entryLogger.getCurCompactionLogFile();
-            TransactionalEntryLogCompactor.CompactionPhase flushCompactionLog = new TransactionalEntryLogCompactor.FlushCompactionLogPhase(metadata.getEntryLogId());
+            CompactionPhase flushCompactionLog = new FlushCompactionLogPhase(metadata.getEntryLogId());
             if (!flushCompactionLog.run()) {
                 LOG.info("Compaction for {} end in FlushCompactionLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactedLogFile = getCompactedLogFile(compactionLogFile, metadata.getEntryLogId());
-            TransactionalEntryLogCompactor.CompactionPhase partialFlushIndexPhase = new PartialFlushIndexPhase(compactedLogFile);
+            CompactionPhase partialFlushIndexPhase = new PartialFlushIndexPhase(compactedLogFile);
             if (!partialFlushIndexPhase.run()) {
                 LOG.info("Compaction for {} end in PartialFlushIndexPhase.", metadata.getEntryLogId());
                 return;
@@ -1405,19 +1405,19 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
 
         synchronized void compactWithLogFlushFailure(EntryLogMetadata metadata) {
             LOG.info("Compacting entry log {}", metadata.getEntryLogId());
-            TransactionalEntryLogCompactor.CompactionPhase scanEntryLog = new TransactionalEntryLogCompactor.ScanEntryLogPhase(metadata);
+            CompactionPhase scanEntryLog = new ScanEntryLogPhase(metadata);
             if (!scanEntryLog.run()) {
                 LOG.info("Compaction for {} end in ScanEntryLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactionLogFile = entryLogger.getCurCompactionLogFile();
-            TransactionalEntryLogCompactor.CompactionPhase logFlushFailurePhase = new LogFlushFailurePhase(metadata.getEntryLogId());
+            CompactionPhase logFlushFailurePhase = new LogFlushFailurePhase(metadata.getEntryLogId());
             if (!logFlushFailurePhase.run()) {
                 LOG.info("Compaction for {} end in FlushCompactionLogPhase.", metadata.getEntryLogId());
                 return;
             }
             File compactedLogFile = getCompactedLogFile(compactionLogFile, metadata.getEntryLogId());
-            TransactionalEntryLogCompactor.CompactionPhase updateIndex = new TransactionalEntryLogCompactor.UpdateIndexPhase(compactedLogFile);
+            CompactionPhase updateIndex = new UpdateIndexPhase(compactedLogFile);
             if (!updateIndex.run()) {
                 LOG.info("Compaction for entry log {} end in UpdateIndexPhase.", metadata.getEntryLogId());
                 return;
@@ -1426,7 +1426,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
             LOG.info("Compacted entry log : {}.", metadata.getEntryLogId());
         }
 
-        private class PartialFlushIndexPhase extends TransactionalEntryLogCompactor.UpdateIndexPhase {
+        private class PartialFlushIndexPhase extends UpdateIndexPhase {
 
             public PartialFlushIndexPhase(File compactedLogFile) {
                 super(compactedLogFile);
@@ -1454,7 +1454,7 @@ public abstract class CompactionTest extends BookKeeperClusterTestCase {
             }
         }
 
-        private class LogFlushFailurePhase extends TransactionalEntryLogCompactor.FlushCompactionLogPhase {
+        private class LogFlushFailurePhase extends FlushCompactionLogPhase {
 
             LogFlushFailurePhase(long compactingLogId) {
                 super(compactingLogId);

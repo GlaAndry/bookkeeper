@@ -15,7 +15,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 
-public class BookieStatusMineTest {
+public class BookieStatusTest {
 
 
     @Rule
@@ -24,7 +24,7 @@ public class BookieStatusMineTest {
     @Rule
     public ExpectedException exIO = ExpectedException.none();
 
-    public BookieStatusMineTest() throws FileNotFoundException {
+    public BookieStatusTest() throws FileNotFoundException {
     }
 
 
