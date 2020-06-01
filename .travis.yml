@@ -10,4 +10,4 @@ script:
 
     # -Dtest=... --> Indica la classe di test da eseguire
  ## - mvn verify -DfailIfNoTests=false -Dmaven.test.failure.ignore=true -Dtest=BufferedChannelTest sonar:sonar -Dsonar.projectKey=GlaAndry_bookkeeper
-  - mvn -Dtest=BufferedChannelMineTest test -DfailIfNoTests=false sonar:sonar -Pcode-coverage -Dsonar.projectKey=GlaAndry_bookkeeper -Dmaven.test.failure.ignore=true
+  - mvn -Dtest=BufferedChannelTest test -DfailIfNoTests=false sonar:sonar -Pcode-coverage -Dsonar.projectKey=GlaAndry_bookkeeper -Dmaven.test.failure.ignore=true
