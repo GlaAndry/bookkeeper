@@ -75,16 +75,23 @@ public class BookieStatusMineTest {
         bookieStatus.readFromDirectories(dir);
     }
 
-    @Mock
-    BufferedReader bufferedReader = new BufferedReader(new FileReader("path"));
 
     @Test
     public void parseTest() throws IOException {
 
-        BufferedReader rd = Mockito.mock(BufferedReader.class);
+        //BufferedReader rd = Mockito.mock(BufferedReader.class);
         BookieStatus bookieStatus = createBookieStatus();
 
-        when(rd.readLine()).thenReturn("abc");
+        File file = File.createTempFile("test", "log");
+        file.deleteOnExit();
+        List<File> dir = new ArrayList<>();
+        dir.add(file);
+
+        bookieStatus.writeToDirectories(dir);
+
+        BufferedReader rd = new BufferedReader(new FileReader(file));
+
+        //when(rd.readLine()).thenReturn(file.getPath());
 
         bookieStatus.parse(rd);
         //ex.expect(FileNotFoundException.class);

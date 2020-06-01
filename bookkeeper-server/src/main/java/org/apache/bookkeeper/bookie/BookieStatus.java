@@ -54,7 +54,7 @@ public class BookieStatus {
     private long lastUpdateTime;
     private volatile BookieMode bookieMode;
 
-    BookieStatus() {
+    public BookieStatus() {
         this.bookieMode = BookieMode.READ_WRITE;
         this.layoutVersion = CURRENT_STATUS_LAYOUT_VERSION;
         this.lastUpdateTime = INVALID_UPDATE_TIME;
