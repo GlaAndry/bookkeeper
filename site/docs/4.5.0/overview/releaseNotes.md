@@ -304,7 +304,7 @@ For the complete list of commands in `BookieShell`, please read [BookKeeper CLI 
 </li>
 <li>[<a href='https://issues.apache.org/jira/browse/BOOKKEEPER-1101'>BOOKKEEPER-1101</a>] -         BookKeeper website menus not working under https
 </li>
-<li>[<a href='https://issues.apache.org/jira/browse/BOOKKEEPER-1102'>BOOKKEEPER-1102</a>] -         org.apache.bookkeeper.client.BookKeeperDiskSpaceWeightedLedgerPlacementTest.testDiskSpaceWeightedBookieSelectionWithBookiesBeingAdded is unreliable
+<li>[<a href='https://issues.apache.org/jira/browse/BOOKKEEPER-1102'>BOOKKEEPER-1102</a>] -         org.apache.BookKeeperDiskSpaceWeightedLedgerPlacementTest.testDiskSpaceWeightedBookieSelectionWithBookiesBeingAdded is unreliable
 </li>
 <li>[<a href='https://issues.apache.org/jira/browse/BOOKKEEPER-1103'>BOOKKEEPER-1103</a>] -         LedgerMetadataCreateTest bug in ledger id generation causes intermittent hang
 </li>
