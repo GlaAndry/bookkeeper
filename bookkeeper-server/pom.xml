@@ -175,9 +175,40 @@
       <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.pitest/pitest-maven -->
+    <dependency>
+      <groupId>org.pitest</groupId>
+      <artifactId>pitest-maven</artifactId>
+      <version>1.4.11</version>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>
+
+
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.4.11</version>
+        <configuration>
+          <targetClasses>
+            <param>org.apache.bookkeeper.bookie.BufferedChannel</param>
+            <param>org.apache.bookkeeper.bookie.BookieStatus</param>
+          </targetClasses>
+          <targetTests>
+            <param>org.apache.bookkeeper.bookie.BufferedChannelTest</param>
+            <param>org.apache.bookkeeper.bookie.BookieStatusTest</param>
+            <param>org.apache.bookkeeper.bookie.TestBufferedDataRead</param>
+            <param>org.apache.bookkeeper.bookie.TestBufferedDataWrite</param>
+
+          </targetTests>
+        </configuration>
+      </plugin>
+
+
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -256,7 +287,11 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
+
+
+
   </build>
   <profiles>
     <profile>
@@ -313,9 +348,25 @@
           </plugin>
         </plugins>
       </build>
+
     </profile>
   </profiles>
 
-
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.4.11</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
 </project>
