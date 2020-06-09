@@ -46,6 +46,8 @@ public class BufferedChannelTest {
     @Rule
     public ExpectedException ex = ExpectedException.none();
 
+
+
     @Test
     public void testObjectInstantiation() throws Exception {
         ex.expect(Exception.class);
