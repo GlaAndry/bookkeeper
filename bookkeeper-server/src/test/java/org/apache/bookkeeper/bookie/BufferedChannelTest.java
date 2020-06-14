@@ -24,39 +24,57 @@ package org.apache.bookkeeper.bookie;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 
 /**
  * Tests for BufferedChannel.
  */
+
+@RunWith(Parameterized.class)
 public class BufferedChannelTest {
 
     private static Random rand = new Random();
     private static final int INTERNAL_BUFFER_WRITE_CAPACITY = -1;
     private static final int INTERNAL_BUFFER_READ_CAPACITY = -1;
+    static BufferedChannel bufferedChannel;
+    private ByteBuf src;
+    private int writeCapacity = 100;
+    private int unpersistedBytesBound;
+    private Object result;
 
-    @Rule
-    public ExpectedException ex = ExpectedException.none();
 
+    @Parameterized.Parameters
+    public static Collection BufferedChannelParameters() {
+        return Arrays.asList(new Object[][] {
+                //{0, null, -2, -1, null},
+                //{0, generateEntryWithoutWrite(0), 0, 1, 0},
+                //{1, generateEntryWithoutWrite(1), 2, 2, "Read past EOF"}
+        });
+    }
 
+    @BeforeClass
+    public static void testObjectInstantiation() throws Exception {
+        bufferedChannel = createBufferedChannel(5000, 30, 0, false, false);
+    }
 
-    @Test
-    public void testObjectInstantiation() throws Exception {
-        ex.expect(Exception.class);
-        createBufferedChannel(5000, 30, 0, false, false);
+    @AfterClass
+    public static void Close() throws IOException {
+        bufferedChannel.close();
     }
 
     @Test
     public void testRead() throws Exception {
-        ex.expect(Exception.class);
         BufferedChannel channel = createBufferedChannel(5000, 30, 0, false, false);
         ByteBuf dataBuf = generateEntry(5000);
 
@@ -68,7 +86,6 @@ public class BufferedChannelTest {
 
     @Test
     public void testWrite() throws Exception{
-        ex.expect(Exception.class);
         BufferedChannel channel = createBufferedChannel(5000, 30, 0, false, false);
 
         ByteBuf dataBuf = generateEntry(5000);
@@ -80,7 +97,6 @@ public class BufferedChannelTest {
 
     @Test
     public void testFlush() throws Exception{
-        ex.expect(Exception.class);
         BufferedChannel logChannel = createBufferedChannel(5000, 30, 0, false, false);
         logChannel.flush();
         Assert.assertEquals(0, logChannel.getFileChannelPosition());
@@ -88,8 +104,8 @@ public class BufferedChannelTest {
     }
 
 
-    public BufferedChannel createBufferedChannel(int byteBufLength, int numOfWrites, int unpersistedBytesBound, boolean flush,
-                                                 boolean shouldForceWrite) throws Exception {
+    public static BufferedChannel createBufferedChannel(int byteBufLength, int numOfWrites, int unpersistedBytesBound, boolean flush,
+                                                        boolean shouldForceWrite) throws Exception {
         File file = File.createTempFile("test", "log");
         file.deleteOnExit();
         FileChannel fileChannel = new RandomAccessFile(file, "rw").getChannel();

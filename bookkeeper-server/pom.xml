@@ -198,10 +198,9 @@
             <param>org.apache.bookkeeper.bookie.BookieStatus</param>
           </targetClasses>
           <targetTests>
-            <param>org.apache.bookkeeper.bookie.BufferedChannelTest</param>
             <param>org.apache.bookkeeper.bookie.BookieStatusTest</param>
-            <param>org.apache.bookkeeper.bookie.TestBufferedDataRead</param>
-            <param>org.apache.bookkeeper.bookie.TestBufferedDataWrite</param>
+            <param>org.apache.bookkeeper.bookie.TestBufferedChannelRead</param>
+            <param>org.apache.bookkeeper.bookie.TestBufferedChannelWrite</param>
 
           </targetTests>
         </configuration>

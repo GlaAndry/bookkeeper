@@ -1,15 +1,17 @@
 package org.apache.bookkeeper.bookie;
 
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,39 +27,65 @@ public class BookieStatusTest {
     long lastUpdateTime;
     String bookieMode;
     String layoutVersion;
+    Object res;
 
 
-    @Rule
-    public ExpectedException ex = ExpectedException.none();
+    @BeforeClass
+    public static void createDir() {
+        File file = new File("path");
+        try {
+            file.mkdir();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterClass
+    public static void deleteDir() {
+        File file = new File("path");
+        try {
+            String[] entries = file.list();
+            for (String s : entries) {
+                File currentFile = new File(file.getPath(), s);
+                currentFile.delete();
+            }
+            file.delete();
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     @Parameterized.Parameters
     public static Collection BookieStatusParameters() throws Exception {
-        return Arrays.asList(new Object[][] {
-                {"path", System.currentTimeMillis(), "READ_WRITE", "1"},
-                {"path", System.currentTimeMillis(), "READ_ONLY", "1"}
+        return Arrays.asList(new Object[][]{
+                {"path", System.currentTimeMillis(), "READ_WRITE", "1", null},
+                {null, System.currentTimeMillis(), "READ_ONLY", "1", NullPointerException.class},
+                {"", System.currentTimeMillis(), "READ_ONLY", "1", IOException.class}
         });
     }
 
 
-    public BookieStatusTest(String path, long lastUpdateTime, String bookieMode, String layoutVersion) throws FileNotFoundException {
+
+    public BookieStatusTest(String path, long lastUpdateTime, String bookieMode, String layoutVersion, Object res) {
         this.path = path;
         this.lastUpdateTime = lastUpdateTime;
         this.bookieMode = bookieMode;
         this.layoutVersion = layoutVersion;
+        this.res = res;
     }
 
-
-    private BookieStatus createBookieStatus(){
+    private BookieStatus createBookieStatus() {
         return new BookieStatus();
     }
 
     @Test
-    public void testWritable(){
+    public void testWritable() {
         Assert.assertEquals(true, createBookieStatus().isInWritable());
     }
 
     @Test
-    public void testWritableAfterReadOnly(){
+    public void testWritableAfterReadOnly() {
 
         BookieStatus bookieStatus = createBookieStatus();
         boolean var = bookieStatus.isInReadOnlyMode();
@@ -66,44 +94,54 @@ public class BookieStatusTest {
     }
 
     @Test
-    public void writeToDirNotEmptyTest() throws Exception{
-
-        List<File> dir = new ArrayList<>();
-
-        File file = File.createTempFile("test", "log");
-        file.deleteOnExit();
-        File file2 = File.createTempFile("test2", "log");
-        file2.deleteOnExit();
-        File file3 = File.createTempFile("test3", "log");
-        file3.deleteOnExit();
-
-        dir.add(file);
-        dir.add(file2);
-        dir.add(file3);
-
-
-
+    public void testSetToWritable() {
         BookieStatus bookieStatus = createBookieStatus();
-        bookieStatus.writeToDirectories(dir);
+        if (bookieStatus.isInWritable()) {
+            Assert.assertEquals(false, bookieStatus.setToWritableMode());
+        } else {
+            Assert.assertEquals(true, bookieStatus.setToWritableMode());
+        }
+    }
+
+    @Test
+    public void testSetReadOnly() {
+        BookieStatus bookieStatus = createBookieStatus();
+        if (bookieStatus.isInReadOnlyMode()) {
+            Assert.assertEquals(false, bookieStatus.setToReadOnlyMode());
+        } else {
+            Assert.assertEquals(true, bookieStatus.setToReadOnlyMode());
+        }
+    }
+
+
+    @Test
+    public void writeToDirTest() {
+
+        try {
+            List<File> directories = new ArrayList<>();
+            File file = new File(path);
+            directories.add(file);
+            BookieStatus bookieStatus = createBookieStatus();
+            bookieStatus.writeToDirectories(directories);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), res);
+        }
 
     }
 
     @Test
-    public void writeToDirEmptyTest() throws Exception{
-        List<File> dir = new ArrayList<>();
-        BookieStatus bookieStatus = createBookieStatus();
-        bookieStatus.writeToDirectories(dir);
+    public void readFromDirTest() {
 
-    }
+        try {
+            List<File> directories = new ArrayList<>();
+            File file = new File(path);
+            directories.add(file);
+            BookieStatus bookieStatus = createBookieStatus();
+            bookieStatus.readFromDirectories(directories);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), res);
+        }
 
-    @Test
-    public void readFromDirTest(){
-
-        List<File> dir = new ArrayList<>();
-        dir.add(new File(path));
-
-        BookieStatus bookieStatus = createBookieStatus();
-        bookieStatus.readFromDirectories(dir);
     }
 
 
@@ -111,13 +149,43 @@ public class BookieStatusTest {
     public void parseTest() throws IOException {
 
         BookieStatus bookieStatus = createBookieStatus();
-        File file = File.createTempFile("test", "log");
-        file.deleteOnExit();
-        List<File> dir = new ArrayList<>();
-        dir.add(file);
-        bookieStatus.writeToDirectories(dir);
-        BufferedReader rd = new BufferedReader(new FileReader(file));
-        bookieStatus.parse(rd);
+        String line = layoutVersion + "," + bookieMode + "," + lastUpdateTime;
+        BufferedReader rd = new BufferedReader(new StringReader(line));
+        Assert.assertEquals(BookieStatus.class, bookieStatus.parse(rd).getClass());
+
+    }
+
+    @Test
+    public void parseTestNoLenght() throws IOException {
+//        BookieStatus bookieStatus = createBookieStatus();
+//        String line = " . . .";
+//        if(line.trim().isEmpty()){
+//            System.out.println("ciao");
+//        }
+//        String[] parts = line.split(",");
+//        System.out.println(parts.length);
+//        bufferedReader = new BufferedReader(new StringReader(line));
+//        Assert.assertEquals(null, bookieStatus.parse(rd));
+//
+//        BookieStatus bookieStatus = createBookieStatus();
+//
+//
+//        Mockito.when(bufferedReader.readLine().split(",").length).thenReturn(0);
+//        Mockito.when(bufferedReader.readLine().split(",").length).thenReturn(0);
+//        //doReturn("").when(bufferedReader).readLine().split(",");
+//        Assert.assertEquals(null, bookieStatus.parse(bufferedReader));
+        /**
+         * Non avendo un controllo sul ritorno di line.split(",") non riesco ad arrivare
+         * a coprire la seguente parte del codice:
+         *
+         * String[] parts = line.split(",");
+         *         if (parts.length == 0) {
+         *             LOG.debug("Error in parsing bookie status: {}", line);
+         *             return null;
+         *         }
+         *
+         * In quanto parts.lenght ritorna sempre almeno 1 per diverse stringhe testate.
+         */
 
     }
 
@@ -142,16 +210,20 @@ public class BookieStatusTest {
     }
 
     @Test
-    public void parseTestNotEmpty() throws IOException {
+    public void parseTestIntegerException() throws IOException {
 
-        BookieStatus bookieStatus = createBookieStatus();
+        try {
+            BookieStatus bookieStatus = createBookieStatus();
+            BufferedReader rd = Mockito.mock(BufferedReader.class);
+            when(rd.readLine()).thenReturn("testIncorrect"); //Creazione di uno stato non corretto.
+            bookieStatus.parse(rd);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getClass(), NumberFormatException.class);
 
-        BufferedReader rd = Mockito.mock(BufferedReader.class);
-        when(rd.readLine()).thenReturn(layoutVersion+","+bookieMode+","+ lastUpdateTime); //Creazione di uno stato corretto. " 1,READ_WRITE,"+ System.currentTimeMillis()
-        Assert.assertNotEquals(null, bookieStatus.parse(rd));
+        }
+
 
     }
-
 
 
 }
