@@ -1,11 +1,12 @@
 package org.apache.bookkeeper.bookie;
 
 
-import org.junit.*;
-import org.junit.rules.ExpectedException;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.BufferedReader;
@@ -59,7 +60,10 @@ public class BookieStatusTest {
     @Parameterized.Parameters
     public static Collection BookieStatusParameters() throws Exception {
         return Arrays.asList(new Object[][]{
+                //Path, LastUpdateTime, BookieMode, LayoutVersion, resException
                 {"path", System.currentTimeMillis(), "READ_WRITE", "1", null},
+                //{"path", 0L, "", "", NumberFormatException.class},
+
                 {null, System.currentTimeMillis(), "READ_ONLY", "1", NullPointerException.class},
                 {"", System.currentTimeMillis(), "READ_ONLY", "1", IOException.class}
         });
@@ -79,11 +83,13 @@ public class BookieStatusTest {
         return new BookieStatus();
     }
 
+    //Coverage
     @Test
     public void testWritable() {
         Assert.assertEquals(true, createBookieStatus().isInWritable());
     }
 
+    //Coverage
     @Test
     public void testWritableAfterReadOnly() {
 
@@ -93,6 +99,7 @@ public class BookieStatusTest {
 
     }
 
+    //Coverage
     @Test
     public void testSetToWritable() {
         BookieStatus bookieStatus = createBookieStatus();
@@ -103,6 +110,7 @@ public class BookieStatusTest {
         }
     }
 
+    //Coverage
     @Test
     public void testSetReadOnly() {
         BookieStatus bookieStatus = createBookieStatus();
@@ -126,7 +134,6 @@ public class BookieStatusTest {
         } catch (Exception e) {
             Assert.assertEquals(e.getClass(), res);
         }
-
     }
 
     @Test
@@ -141,9 +148,7 @@ public class BookieStatusTest {
         } catch (Exception e) {
             Assert.assertEquals(e.getClass(), res);
         }
-
     }
-
 
     @Test
     public void parseTest() throws IOException {
@@ -221,8 +226,6 @@ public class BookieStatusTest {
             Assert.assertEquals(e.getClass(), NumberFormatException.class);
 
         }
-
-
     }
 
 

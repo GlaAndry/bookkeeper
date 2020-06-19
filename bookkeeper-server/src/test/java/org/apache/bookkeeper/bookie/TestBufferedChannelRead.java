@@ -5,7 +5,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,10 +55,17 @@ public class TestBufferedChannelRead {
                 //e salta le prime due.
 
 
+                //Coverage
                 {50, null, 0, 0, NullPointerException.class},
-                {50, ByteBufNoWrite(100), 0, 10, IOException.class},
+                {50, ByteBufNoWrite(100), 0, 10, IOException.class}, //Nel buffer ci sono solamente 4 scritture, quindi nella
+                //posizione 10 non c'è nulla.
                 {50, ByteBufNoWrite(100), 0, 4, 4},
                 {50, ByteBufNoWrite(100), -1, 0, 0}, //test per non entrare nel while.
+
+                /**
+                 * La variabile Lenght deve essere al massimo pari al numero di scritture - pos
+                 * effettuate all'interno del writeBuffer, altrimenti restituisce IOException
+                */
 
         });
     }
@@ -147,5 +153,105 @@ public class TestBufferedChannelRead {
          */
         ByteBuf bb = Unpooled.buffer(length);
         return bb;
+    }
+
+    /**
+     * Coverage
+     */
+
+
+    @Test
+    public void testPosition(){
+        try{
+            BufferedChannel bf = createBufferedChannel(writeCapacity, 10);
+            Assert.assertEquals(0, bf.position());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFileChannelPosition(){
+        try{
+            BufferedChannel bf = createBufferedChannel(writeCapacity, 10);
+            Assert.assertEquals(0, bf.getFileChannelPosition());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFlush(){
+        try{
+            BufferedChannel bf = createBufferedChannel(10, 10);
+            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            bf.write(wrtBuf);
+            Assert.assertEquals(0, bf.fileChannel.size());
+            bf.flush(); //Eseguendo il flush Scrivo nel FileChannel, quindi cambia la size
+            Assert.assertEquals(2, bf.fileChannel.size());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testForceWrite(){
+        try{
+            BufferedChannel bf = createBufferedChannel(100, 3);
+            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            bf.write(wrtBuf);
+            Assert.assertEquals(0, bf.forceWrite(true));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testClear(){
+        try{
+            BufferedChannel bf = createBufferedChannel(100, 3);
+            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            bf.write(wrtBuf);
+            Assert.assertEquals(2, wrtBuf.writerIndex());
+            bf.clear(); //imposta a 0 la variabile writerIndex
+            //Assert.assertEquals(0, wrtBuf.writerIndex());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetNumOfBytesInWriteBuffer(){
+        try{
+            BufferedChannel bf = createBufferedChannel(100, 3);
+            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            bf.write(wrtBuf);
+            Assert.assertEquals(2, bf.getNumOfBytesInWriteBuffer());
+            } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetUnpersistedBytes(){
+        try{
+            BufferedChannel bf = createBufferedChannel(100, 3);
+            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            bf.write(wrtBuf);
+            Assert.assertEquals(2, bf.getUnpersistedBytes());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
