@@ -83,10 +83,26 @@ public class BookieStatusTest {
         return new BookieStatus();
     }
 
+    //Mutation on line 231
+    @Test
+    public void testToString(){
+        BookieStatus bookieStatus = createBookieStatus();
+        Assert.assertNotEquals("", bookieStatus.toString());
+
+    }
+
+
     //Coverage
     @Test
     public void testWritable() {
-        Assert.assertEquals(true, createBookieStatus().isInWritable());
+
+        BookieStatus bookieStatus = createBookieStatus();
+        Assert.assertEquals(true, bookieStatus.isInWritable());
+
+        //For Mutation on line 64
+        bookieStatus.setToReadOnlyMode();
+        Assert.assertEquals(false, bookieStatus.isInWritable());
+
     }
 
     //Coverage
@@ -97,28 +113,50 @@ public class BookieStatusTest {
         boolean var = bookieStatus.isInReadOnlyMode();
         Assert.assertEquals(false, var);
 
+        //for mutation on line 81
+        bookieStatus.setToReadOnlyMode();
+        Assert.assertEquals(true, bookieStatus.isInReadOnlyMode());
+
+
     }
 
     //Coverage
     @Test
     public void testSetToWritable() {
         BookieStatus bookieStatus = createBookieStatus();
-        if (bookieStatus.isInWritable()) {
-            Assert.assertEquals(false, bookieStatus.setToWritableMode());
-        } else {
-            Assert.assertEquals(true, bookieStatus.setToWritableMode());
-        }
+        Assert.assertEquals(false, bookieStatus.setToWritableMode());
+
+        //For mutation on line 75
+        bookieStatus.setToReadOnlyMode();
+        Assert.assertEquals(true, bookieStatus.setToWritableMode());
+
+
+//
+//        if (bookieStatus.isInWritable()) {
+//            Assert.assertEquals(false, bookieStatus.setToWritableMode());
+//        } else {
+//            Assert.assertEquals(true, bookieStatus.setToWritableMode());
+//        }
     }
 
     //Coverage
     @Test
     public void testSetReadOnly() {
+
         BookieStatus bookieStatus = createBookieStatus();
-        if (bookieStatus.isInReadOnlyMode()) {
-            Assert.assertEquals(false, bookieStatus.setToReadOnlyMode());
-        } else {
-            Assert.assertEquals(true, bookieStatus.setToReadOnlyMode());
-        }
+        Assert.assertEquals(true, bookieStatus.setToReadOnlyMode());
+
+        //Mutation on line 90
+        bookieStatus.setToReadOnlyMode();
+        Assert.assertEquals(false, bookieStatus.setToReadOnlyMode());
+
+
+
+//        if (bookieStatus.isInReadOnlyMode()) {
+//            Assert.assertEquals(false, bookieStatus.setToReadOnlyMode());
+//        } else {
+//            Assert.assertEquals(true, bookieStatus.setToReadOnlyMode());
+//        }
     }
 
 

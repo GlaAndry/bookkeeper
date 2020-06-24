@@ -127,20 +127,36 @@ public class TestBufferedChannelWrite {
 
     //for Coverage
     @Test
-    public void testFlush() throws Exception {
+    public void testClose() throws Exception {
 
         try {
             BufferedChannel logChannel = createBufferedChannel(writeCapacity, unpersistedBytesBound);
+            Assert.assertEquals(true, logChannel.fileChannel.isOpen());
             logChannel.close();
+            Assert.assertEquals(false, logChannel.fileChannel.isOpen());
         } catch (Exception e) {
             Assert.assertEquals(IOException.class, e.getClass());
         }
 
     }
 
+    //for mutation on line 94 && 98
+    @Test
+    public void testCloseAlreadyClosed() throws Exception {
+        BufferedChannel bf = createBufferedChannel(10, 1);
+        Assert.assertEquals(true, bf.fileChannel.isOpen());
+
+        bf.close();
+
+        Assert.assertEquals(false, bf.fileChannel.isOpen());
+
+        //close on closed channel
+        bf.close();
+    }
+
     //For Coverage
     @Test
-    public void testClose(){
+    public void testFlush(){
         try {
             BufferedChannel logChannel = createBufferedChannel(writeCapacity, unpersistedBytesBound);
             logChannel.flush();

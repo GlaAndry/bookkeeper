@@ -44,6 +44,9 @@ public class TestBufferedChannelRead {
     public static Collection BufferedChannelParameters() {
         return Arrays.asList(new Object[][]{
                 //WriteCapacity, ByteBuf writeBuffer, position, length, resultException//
+
+
+                //Category Partition////////
                 {0, null, -2, -1, NullPointerException.class},
                 /**
                  * {0, ByteBufNoWrite(0), 0, 1, 0}, Genera un ciclo infinito
@@ -51,16 +54,17 @@ public class TestBufferedChannelRead {
                  *                 if (dest.writableBytes() == 0)
                  *                 length = 0;
                 */
-                {1, ByteBufNoWrite(1), 2, 2, 2}, //restituisce 2 in quanto ci sono 4 scritture
+                {1, byteBufNoWrite(1), 2, 2, 2}, //restituisce 2 in quanto ci sono 4 scritture
                 //e salta le prime due.
+                ////////////////////////
 
-
-                //Coverage
+                //Coverage////////////
                 {50, null, 0, 0, NullPointerException.class},
-                {50, ByteBufNoWrite(100), 0, 10, IOException.class}, //Nel buffer ci sono solamente 4 scritture, quindi nella
+                {50, byteBufNoWrite(100), 0, 10, IOException.class}, //Nel buffer ci sono solamente 4 scritture, quindi nella
                 //posizione 10 non c'è nulla.
-                {50, ByteBufNoWrite(100), 0, 4, 4},
-                {50, ByteBufNoWrite(100), -1, 0, 0}, //test per non entrare nel while.
+                {50, byteBufNoWrite(100), 0, 4, 4},
+                {50, byteBufNoWrite(100), -1, 0, 0}, //test per non entrare nel while.
+                /////////////////////
 
                 /**
                  * La variabile Lenght deve essere al massimo pari al numero di scritture - pos
@@ -132,7 +136,7 @@ public class TestBufferedChannelRead {
     }
 
 
-    public static ByteBuf generateValidByteBufAlreadyWrited(int length) {
+    public static ByteBuf validByteBufAlreadyWrited(int length) {
         /**
          * Questo metodo genera randomicamente un ByteBuf con una lunghezza impostata
          * dalla variabile lenght andando a scrivere al suo interno.
@@ -146,7 +150,7 @@ public class TestBufferedChannelRead {
 
     }
 
-    public static ByteBuf ByteBufNoWrite(int length) {
+    public static ByteBuf byteBufNoWrite(int length) {
         /**
          * Questo metodo genera randomicamente un ByteBuf con una lunghezza impostata
          * senza scrivere nulla al suo interno.
@@ -163,8 +167,15 @@ public class TestBufferedChannelRead {
     @Test
     public void testPosition(){
         try{
-            BufferedChannel bf = createBufferedChannel(writeCapacity, 10);
+            BufferedChannel bf = createBufferedChannel(10, 10);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            wrtBuf.writeByte(1);
+            //For mutation on line 145
             Assert.assertEquals(0, bf.position());
+            bf.write(wrtBuf);
+            Assert.assertEquals(2, bf.position());
+            bf.close();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -173,8 +184,14 @@ public class TestBufferedChannelRead {
     @Test
     public void testFileChannelPosition(){
         try{
-            BufferedChannel bf = createBufferedChannel(writeCapacity, 10);
-            Assert.assertEquals(0, bf.getFileChannelPosition());
+            BufferedChannel bf2 = createBufferedChannel(10, 1);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
+            wrtBuf.writeByte(1);
+            //For Mutation on line 153
+            Assert.assertEquals(0, bf2.getFileChannelPosition());
+            wrtBuf.writeByte(1);
+            bf2.write(wrtBuf);
+            Assert.assertEquals(2, bf2.getFileChannelPosition());
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -184,7 +201,7 @@ public class TestBufferedChannelRead {
     public void testFlush(){
         try{
             BufferedChannel bf = createBufferedChannel(10, 10);
-            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
             wrtBuf.writeByte(1);
             wrtBuf.writeByte(1);
             bf.write(wrtBuf);
@@ -196,18 +213,56 @@ public class TestBufferedChannelRead {
         }
     }
 
+    //Mutation on return on line 231
     @Test
     public void testForceWrite(){
         try{
-            BufferedChannel bf = createBufferedChannel(100, 3);
-            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            BufferedChannel bf = createBufferedChannel(100, 1);
+            ByteBuf wrtBuf = byteBufNoWrite(512);
             wrtBuf.writeByte(1);
             wrtBuf.writeByte(1);
+
             bf.write(wrtBuf);
-            Assert.assertEquals(0, bf.forceWrite(true));
+            Assert.assertEquals(2, bf.forceWrite(true));
+
+            bf.write(wrtBuf);
+            Assert.assertEquals(4, bf.forceWrite(true));
+
+            //Test with UnpersistedByteBound = 0
+            BufferedChannel bf2 = createBufferedChannel(100, 0);
+            ByteBuf wrtBuf2 = byteBufNoWrite(512);
+            wrtBuf2.writeByte(1);
+            wrtBuf2.writeByte(1);
+
+            bf2.write(wrtBuf);
+            Assert.assertEquals(0, bf2.forceWrite(true));
+
         } catch (Exception e){
             e.printStackTrace();
         }
+
+    }
+
+
+    //mutation on line 180-181 non possono essere eliminate in quanto la funzione ritorna void.
+    @Test
+    public void testFlushAndForce() throws Exception {
+
+        //doRegularFlushes = UnpersistedByteBound > 0;
+        BufferedChannel bf = createBufferedChannel(100, 1);
+        ByteBuf wrtBuf = byteBufNoWrite(512);
+        wrtBuf.writeByte(1);
+        wrtBuf.writeByte(1);
+
+        bf.write(wrtBuf);
+        //con questa chiamata vado a richiamare anche la funzione flushAndForceWrite(bool...);
+        bf.flushAndForceWriteIfRegularFlush(true);
+
+        Assert.assertEquals(2, bf.forceWrite(true));
+
+        //doRegularFlushes = 0 COVERAGE
+        BufferedChannel bf2 = createBufferedChannel(100, 0);
+        bf2.flushAndForceWriteIfRegularFlush(true);
 
     }
 
@@ -215,7 +270,7 @@ public class TestBufferedChannelRead {
     public void testClear(){
         try{
             BufferedChannel bf = createBufferedChannel(100, 3);
-            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
             wrtBuf.writeByte(1);
             wrtBuf.writeByte(1);
             bf.write(wrtBuf);
@@ -231,7 +286,7 @@ public class TestBufferedChannelRead {
     public void testGetNumOfBytesInWriteBuffer(){
         try{
             BufferedChannel bf = createBufferedChannel(100, 3);
-            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
             wrtBuf.writeByte(1);
             wrtBuf.writeByte(1);
             bf.write(wrtBuf);
@@ -245,7 +300,7 @@ public class TestBufferedChannelRead {
     public void testGetUnpersistedBytes(){
         try{
             BufferedChannel bf = createBufferedChannel(100, 3);
-            ByteBuf wrtBuf = ByteBufNoWrite(15);
+            ByteBuf wrtBuf = byteBufNoWrite(15);
             wrtBuf.writeByte(1);
             wrtBuf.writeByte(1);
             bf.write(wrtBuf);
