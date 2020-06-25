@@ -236,7 +236,6 @@ public class TestBufferedChannelRead {
 
             bf2.write(wrtBuf);
             Assert.assertEquals(0, bf2.forceWrite(true));
-
         } catch (Exception e){
             e.printStackTrace();
         }
